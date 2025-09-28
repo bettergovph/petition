@@ -116,7 +116,7 @@ export function createNotFoundResponse(message: string = 'Not found'): Response 
 }
 
 export function getDbService(context: EventContext<Env>): DatabaseService {
-  return new DatabaseService(context.env.DB, context.env)
+  return new DatabaseService(context.env.DB)
 }
 
 // ETag and caching utilities

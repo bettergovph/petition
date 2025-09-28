@@ -108,7 +108,6 @@ This will start both the React frontend and the API functions on `http://localho
 
 ## API Endpoints
 
-- `POST /api/users` - Create user
 - `GET /api/users/:id` - Get user by ID
 - `POST /api/petitions` - Create petition
 - `GET /api/petitions` - Get all petitions (supports ?type=local|national)

@@ -1,12 +1,11 @@
 import type {
-  CreateUserInput,
   CreatePetitionInput,
   CreateSignatureInput,
   User,
   Petition,
   Signature,
-  Category,
   PetitionWithDetails,
+  Category,
 } from '@/types/api'
 
 // API base URL - Vite Cloudflare plugin serves functions on same port
@@ -123,13 +122,6 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
 
 // User API
 export const userApi = {
-  async create(userData: CreateUserInput): Promise<User> {
-    return apiRequest<User>('/api/users', {
-      method: 'POST',
-      body: JSON.stringify(userData),
-    })
-  },
-
   async getById(id: number): Promise<User> {
     return apiRequest<User>(`/api/users/${id}`)
   },

@@ -51,12 +51,6 @@ export interface PetitionCategory {
   category_id: number
 }
 
-export interface CreateUserInput {
-  name?: string
-  email: string
-  emailVerified?: string
-  image?: string
-}
 
 export interface CreatePetitionInput {
   title: string

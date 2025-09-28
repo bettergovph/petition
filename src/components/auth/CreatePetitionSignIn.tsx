@@ -80,7 +80,7 @@ export default function CreatePetitionSignIn({ isSubmitting = false }: CreatePet
               </div>
 
               <div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-3">Sign In to Get Started</h3>
+                <h3 className="text-3xl font-bold text-gray-900 mb-3">Sign In or Register to Get Started</h3>
                 <p className="text-lg text-gray-800 mb-6">
                   Create your account in seconds and start building support for your cause
                 </p>
@@ -125,7 +125,7 @@ export default function CreatePetitionSignIn({ isSubmitting = false }: CreatePet
                   className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-900 text-white flex items-center justify-center gap-3 h-14 text-lg font-semibold shadow-lg"
                 >
                   <Users className="w-5 h-5" />
-                  Sign In & Create Petition
+                  Sign In or Register
                 </Button>
               </div>
             </div>

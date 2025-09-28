@@ -8,56 +8,23 @@ import type {
   Petition,
   Signature,
   Category,
-  CreateUserInput,
   CreatePetitionInput,
   CreateSignatureInput,
   PetitionWithDetails,
 } from './schemas/types'
-import { emailUtils } from '../utils/encryption'
 
 export class DatabaseService {
   private db: D1Database
-  private env?: { EMAIL_ENCRYPTION_KEY?: string }
 
-  constructor(db: D1Database, env?: { EMAIL_ENCRYPTION_KEY?: string }) {
+  constructor(db: D1Database) {
     this.db = db
-    this.env = env
   }
 
   // User methods
-  async createUser(userData: CreateUserInput): Promise<User> {
-    // Encrypt email before storing
-    const encryptedEmail = await emailUtils.encryptForStorage(userData.email, this.env)
-    
-    const stmt = this.db.prepare(`
-      INSERT INTO users (name, email, emailVerified, image)
-      VALUES (?, ?, ?, ?)
-      RETURNING *
-    `)
-
-    const result = await stmt
-      .bind(userData.name || null, encryptedEmail, userData.emailVerified || null, userData.image || null)
-      .first<User>()
-
-    if (!result) {
-      throw new Error('Failed to create user')
-    }
-
-    return result
-  }
 
   async getUserById(id: string): Promise<User | null> {
     const stmt = this.db.prepare('SELECT * FROM users WHERE id = ?')
     return await stmt.bind(id).first<User>()
-  }
-
-  async getUserByEmail(email: string): Promise<User | null> {
-    // For email lookup, we need to check both encrypted and unencrypted versions
-    // This handles migration scenarios where some emails might still be unencrypted
-    const encryptedEmail = await emailUtils.encryptForStorage(email, this.env)
-    
-    const stmt = this.db.prepare('SELECT * FROM users WHERE email = ? OR email = ?')
-    return await stmt.bind(email, encryptedEmail).first<User>()
   }
 
   // Helper method to generate URL-friendly slug

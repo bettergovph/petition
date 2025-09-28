@@ -3,7 +3,6 @@ import type { Env, EventContext } from './_shared/types'
 
 // Import individual function handlers
 import { onRequest as uptimeHandler } from './api/uptime'
-import { onRequest as usersHandler } from './api/users'
 import { onRequest as userByIdHandler } from './api/users/[id]'
 import { onRequest as userSignaturesHandler } from './api/users/[id]/signatures'
 import { onRequest as userPetitionsHandler } from './api/users/[id]/petitions'
@@ -78,9 +77,6 @@ export default {
         return await uptimeHandler(createContext(request, env))
       }
 
-      if (path === '/api/users') {
-        return await usersHandler(createContext(request, env))
-      }
 
       if (path.match(/^\/api\/users\/[^/]+\/signatures$/)) {
         const params = parsePathParams(path, '/api/users/[id]/signatures')

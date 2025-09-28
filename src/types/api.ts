@@ -51,12 +51,6 @@ export interface PetitionWithDetails extends Petition {
 }
 
 // Input types for API requests
-export interface CreateUserInput {
-  name?: string
-  email: string
-  emailVerified?: string
-  image?: string
-}
 
 export interface CreatePetitionInput {
   title: string
