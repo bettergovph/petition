@@ -20,8 +20,80 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
     const url = new URL(context.request.url)
     
     if (context.request.method === 'POST') {
-      const petitionData: CreatePetitionInput = await context.request.json()
-      const petition = await db.createPetition(petitionData)
+      // Check if this is a multipart form (with image) or JSON
+      const contentType = context.request.headers.get('content-type') || ''
+      
+      let petitionData: CreatePetitionInput
+      let imageFile: File | null = null
+      
+      if (contentType.includes('multipart/form-data')) {
+        // Handle form data with potential image
+        const formData = await context.request.formData()
+        
+        // Extract petition data from form
+        petitionData = {
+          title: formData.get('title') as string,
+          description: formData.get('description') as string,
+          type: formData.get('type') as 'local' | 'national',
+          location: formData.get('location') as string || undefined,
+          target_count: parseInt(formData.get('target_count') as string),
+          created_by: formData.get('created_by') as string,
+          category_ids: JSON.parse(formData.get('category_ids') as string || '[]'),
+          image_url: '' // Will be set after upload
+        }
+        
+        // Get image file if provided
+        imageFile = formData.get('image') as File | null
+      } else {
+        // Handle JSON data (no image)
+        petitionData = await context.request.json()
+      }
+      
+      // Step 1: Create petition record first (without image_url)
+      const petition = await db.createPetition({
+        ...petitionData,
+        image_url: '' // Start with empty image_url
+      })
+      
+      // Step 2: If image provided, upload to R2 and update petition
+      if (imageFile && imageFile.size > 0) {
+        try {
+          // Generate organized file path: petitions/{petition_id}/image.{extension}
+          const extension = imageFile.name.split('.').pop() || 'jpg'
+          const filename = `petitions/${petition.id}/image.${extension}`
+          
+          // Upload to R2
+          const arrayBuffer = await imageFile.arrayBuffer()
+          await context.env.IMAGES.put(filename, arrayBuffer, {
+            httpMetadata: {
+              contentType: imageFile.type,
+              cacheControl: 'public, max-age=31536000', // 1 year cache
+            },
+            customMetadata: {
+              petitionId: petition.id.toString(),
+              originalName: imageFile.name,
+              uploadedAt: new Date().toISOString(),
+              size: imageFile.size.toString(),
+            }
+          })
+          
+          // Generate public URL - for now using a placeholder
+          // TODO: Configure custom domain or get proper R2 public URL
+          const imageUrl = `https://images.petition.ph/${filename}`
+          
+          // Step 3: Update petition with image URL
+          await db.updatePetition(petition.id, { image_url: imageUrl })
+          
+          // Update the petition object to return
+          petition.image_url = imageUrl
+          
+          console.log(`✅ Image uploaded for petition ${petition.id}: ${filename}`)
+        } catch (error) {
+          console.error(`❌ Failed to upload image for petition ${petition.id}:`, error)
+          // Don't fail the petition creation if image upload fails
+          // The petition is already created, just without an image
+        }
+      }
       
       // Invalidate petition caches when a new petition is created
       console.log(`🆕 New petition created - invalidating all petition caches`)

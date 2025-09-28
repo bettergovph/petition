@@ -4,6 +4,7 @@ import { Card } from './ui/card'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Badge } from './ui/badge'
+// import { ImageUpload } from './ui/ImageUpload' // Using custom implementation for server-side upload
 import { petitionApi, categoryApi, ApiError } from '../services/api'
 import type { Category } from '../types/api'
 import MDEditor, { commands } from '@uiw/react-md-editor'
@@ -18,8 +19,12 @@ interface CreatePetitionFormData {
   location: string
   targetCount: number
   imageUrl: string
-  imageFile: File | null
   categories: number[]
+}
+
+interface ImageUploadState {
+  file: File | null
+  url: string
 }
 
 export default function CreatePetition() {
@@ -42,13 +47,13 @@ export default function CreatePetition() {
     location: '',
     targetCount: 1000,
     imageUrl: '',
-    imageFile: null,
     categories: [],
   })
 
   const [categories, setCategories] = useState<Category[]>([])
   const [errors, setErrors] = useState<Partial<Record<keyof CreatePetitionFormData, string>>>({})
   const [submitError, setSubmitError] = useState<string>('')
+  const [imageState, setImageState] = useState<ImageUploadState>({ file: null, url: '' })
 
   // Load categories on component mount
   useEffect(() => {
@@ -166,29 +171,25 @@ export default function CreatePetition() {
     }
   }
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    // Check file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
-      setErrors(prev => ({ ...prev, imageUrl: t('create.imageSizeError') }))
-      return
+  const handleImageSelected = (file: File) => {
+    // Store the file for later upload and create preview URL
+    const previewUrl = URL.createObjectURL(file)
+    setImageState({ file, url: previewUrl })
+    handleInputChange('imageUrl', previewUrl) // For preview purposes
+    
+    // Clear any previous image errors
+    if (errors.imageUrl) {
+      setErrors(prev => ({ ...prev, imageUrl: undefined }))
     }
+  }
 
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      setErrors(prev => ({ ...prev, imageUrl: t('create.imageTypeError') }))
-      return
+  const handleImageRemoved = () => {
+    // Clean up preview URL and reset state
+    if (imageState.url && imageState.url.startsWith('blob:')) {
+      URL.revokeObjectURL(imageState.url)
     }
-
-    const reader = new FileReader()
-    reader.onload = event => {
-      const base64String = event.target?.result as string
-      handleInputChange('imageUrl', base64String)
-      handleInputChange('imageFile', file)
-    }
-    reader.readAsDataURL(file)
+    setImageState({ file: null, url: '' })
+    handleInputChange('imageUrl', '')
   }
 
   const handleCategoryToggle = (categoryId: number) => {
@@ -217,19 +218,52 @@ export default function CreatePetition() {
     setSubmitError('')
 
     try {
-      // Create petition using authenticated user
-      const petitionData = {
-        title: formData.title,
-        description: formData.description,
-        type: formData.type,
-        location: formData.type === 'local' ? formData.location : undefined,
-        target_count: formData.targetCount,
-        image_url: formData.imageUrl || undefined,
-        created_by: session.user.id,
-        category_ids: formData.categories,
+      let petition
+
+      if (imageState.file) {
+        // Create petition with image using FormData
+        const submitFormData = new FormData()
+        submitFormData.append('title', formData.title)
+        submitFormData.append('description', formData.description)
+        submitFormData.append('type', formData.type)
+        if (formData.type === 'local' && formData.location) {
+          submitFormData.append('location', formData.location)
+        }
+        submitFormData.append('target_count', formData.targetCount.toString())
+        submitFormData.append('created_by', session.user.id)
+        submitFormData.append('category_ids', JSON.stringify(formData.categories))
+        submitFormData.append('image', imageState.file)
+
+        // Send FormData directly to the API
+        const response = await fetch('/api/petitions', {
+          method: 'POST',
+          body: submitFormData,
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        petition = await response.json() as any
+      } else {
+        // Create petition without image using JSON
+        const petitionData = {
+          title: formData.title,
+          description: formData.description,
+          type: formData.type,
+          location: formData.type === 'local' ? formData.location : undefined,
+          target_count: formData.targetCount,
+          created_by: session.user.id,
+          category_ids: formData.categories,
+        }
+
+        petition = await petitionApi.create(petitionData)
       }
 
-      const petition = await petitionApi.create(petitionData)
+      // Clean up preview URL if it exists
+      if (imageState.url && imageState.url.startsWith('blob:')) {
+        URL.revokeObjectURL(imageState.url)
+      }
 
       // Navigate to review and publish page
       navigate(`/review/${petition.slug}`)
@@ -554,84 +588,51 @@ export default function CreatePetition() {
                 Add an image to make your petition more compelling (Max 5MB)
               </p>
 
-              <div className="flex flex-col space-y-4">
-                <div className="flex items-center justify-center w-full">
-                  <label
-                    htmlFor="image-upload"
-                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-white hover:bg-gray-50 hover:border-gray-400"
-                  >
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      {formData.imageUrl ? (
-                        <div className="text-center">
-                          <p className="text-sm text-green-600 font-medium">✓ Image uploaded</p>
-                          <p className="text-xs text-gray-500">{formData.imageFile?.name}</p>
-                        </div>
-                      ) : (
-                        <>
-                          <svg
-                            className="w-8 h-8 mb-2 text-gray-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                            />
-                          </svg>
-                          <p className="mb-2 text-sm text-gray-700">
-                            <span className="font-semibold">{t('create.chooseImage')}</span> or drag
-                            and drop
-                          </p>
-                          <p className="text-xs text-gray-600">PNG, JPG, GIF up to 5MB</p>
-                        </>
-                      )}
-                    </div>
-                    <input
-                      id="image-upload"
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                    />
-                  </label>
-                </div>
-
-                {formData.imageUrl && (
-                  <div className="relative">
-                    <img
-                      src={formData.imageUrl}
-                      alt="Petition preview"
-                      className="w-full h-48 object-cover rounded-lg"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        handleInputChange('imageUrl', '')
-                        handleInputChange('imageFile', null)
-                      }}
-                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                    >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) {
+                      handleImageSelected(file)
+                    }
+                  }}
+                  className="hidden"
+                  id="image-upload"
+                  disabled={isSubmitting}
+                />
+                <label htmlFor="image-upload" className="cursor-pointer">
+                  {formData.imageUrl ? (
+                    <div className="relative">
+                      <img
+                        src={formData.imageUrl}
+                        alt="Preview"
+                        className="max-w-full max-h-48 mx-auto rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          handleImageRemoved()
+                        }}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                )}
+                        ×
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                        📷
+                      </div>
+                      <p className="text-gray-500">Click to select an image</p>
+                      <p className="text-xs text-gray-400">Max 5MB, JPEG/PNG/WebP/GIF</p>
+                    </div>
+                  )}
+                </label>
               </div>
-
               {errors.imageUrl && (
                 <div className="mt-2 flex items-center">
                   <svg

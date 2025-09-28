@@ -456,4 +456,5 @@ export class DatabaseService {
     `)
     await stmt.bind(petitionId, categoryId).run()
   }
+
 }

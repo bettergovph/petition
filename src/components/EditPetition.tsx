@@ -18,9 +18,13 @@ interface EditPetitionFormData {
   location: string
   targetCount: number
   imageUrl: string
-  imageFile: File | null
   categories: number[]
   status: 'active' | 'completed' | 'closed'
+}
+
+interface ImageUploadState {
+  file: File | null
+  url: string
 }
 
 export default function EditPetition() {
@@ -39,7 +43,6 @@ export default function EditPetition() {
     location: '',
     targetCount: 1000,
     imageUrl: '',
-    imageFile: null,
     categories: [],
     status: 'active'
   })
@@ -47,6 +50,7 @@ export default function EditPetition() {
   const [categories, setCategories] = useState<Category[]>([])
   const [errors, setErrors] = useState<Partial<Record<keyof EditPetitionFormData, string>>>({})
   const [submitError, setSubmitError] = useState<string>('')
+  const [imageState, setImageState] = useState<ImageUploadState>({ file: null, url: '' })
 
   // Load petition and categories on component mount
   useEffect(() => {
@@ -81,7 +85,6 @@ export default function EditPetition() {
         location: petitionData.location || '',
         targetCount: petitionData.target_count,
         imageUrl: petitionData.image_url || '',
-        imageFile: null,
         categories: petitionData.categories?.map(cat => cat.id) || [],
         status: petitionData.status
       })
@@ -174,13 +177,10 @@ export default function EditPetition() {
       return
     }
 
-    const reader = new FileReader()
-    reader.onload = (event) => {
-      const base64String = event.target?.result as string
-      handleInputChange('imageUrl', base64String)
-      handleInputChange('imageFile', file)
-    }
-    reader.readAsDataURL(file)
+    // Store the file for later upload and create preview URL
+    const previewUrl = URL.createObjectURL(file)
+    setImageState({ file, url: previewUrl })
+    handleInputChange('imageUrl', previewUrl) // For preview purposes
   }
 
   const handleCategoryToggle = (categoryId: number) => {
@@ -208,18 +208,48 @@ export default function EditPetition() {
     setSubmitError('')
 
     try {
-      const petitionData = {
-        title: formData.title,
-        description: formData.description,
-        type: formData.type,
-        location: formData.type === 'local' ? formData.location : undefined,
-        target_count: formData.targetCount,
-        image_url: formData.imageUrl || undefined,
-        category_ids: formData.categories,
-        status: formData.status
+      if (imageState.file) {
+        // Update petition with image using FormData
+        const submitFormData = new FormData()
+        submitFormData.append('title', formData.title)
+        submitFormData.append('description', formData.description)
+        submitFormData.append('type', formData.type)
+        if (formData.type === 'local' && formData.location) {
+          submitFormData.append('location', formData.location)
+        }
+        submitFormData.append('target_count', formData.targetCount.toString())
+        submitFormData.append('category_ids', JSON.stringify(formData.categories))
+        submitFormData.append('status', formData.status)
+        submitFormData.append('image', imageState.file)
+
+        // Send FormData directly to the API
+        const response = await fetch(`/api/petitions/${petition.id}`, {
+          method: 'PUT',
+          body: submitFormData,
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+      } else {
+        // Update petition without image using JSON
+        const petitionData = {
+          title: formData.title,
+          description: formData.description,
+          type: formData.type,
+          location: formData.type === 'local' ? formData.location : undefined,
+          target_count: formData.targetCount,
+          category_ids: formData.categories,
+          status: formData.status
+        }
+
+        await petitionApi.update(petition.id, petitionData)
       }
 
-      await petitionApi.update(petition.id, petitionData)
+      // Clean up preview URL if it exists
+      if (imageState.url && imageState.url.startsWith('blob:')) {
+        URL.revokeObjectURL(imageState.url)
+      }
 
       // Navigate back to profile or petition detail
       navigate(`/petition/${petition.slug}`)
@@ -478,7 +508,7 @@ export default function EditPetition() {
                       {formData.imageUrl ? (
                         <div className="text-center">
                           <p className="text-sm text-green-600 font-medium">✓ Image uploaded</p>
-                          <p className="text-xs text-gray-500">{formData.imageFile?.name || 'Current image'}</p>
+                          <p className="text-xs text-gray-500">{imageState.file?.name || 'Current image'}</p>
                         </div>
                       ) : (
                         <>
@@ -512,8 +542,12 @@ export default function EditPetition() {
                     <button
                       type="button"
                       onClick={() => {
+                        // Clean up preview URL and reset state
+                        if (imageState.url && imageState.url.startsWith('blob:')) {
+                          URL.revokeObjectURL(imageState.url)
+                        }
+                        setImageState({ file: null, url: '' })
                         handleInputChange('imageUrl', '')
-                        handleInputChange('imageFile', null)
                       }}
                       className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                     >

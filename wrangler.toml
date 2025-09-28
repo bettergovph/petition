@@ -3,10 +3,7 @@ main = "./functions/index.ts"
 compatibility_date = "2025-04-23"
 compatibility_flags = ["nodejs_compat"]
 
-assets = { not_found_handling = "single-page-application", run_worker_first = [
-  "/api/*",
-  "/auth/*",
-] }
+assets = { not_found_handling = "single-page-application",  run_worker_first = ["/api/*", "/auth/*", "/petition/*"] }
 
 # route = { pattern = "petition.ph/*", zone_name = "petition.ph" }
 
@@ -32,6 +29,11 @@ database_id = "c59456f6-7137-4c00-a3c7-e9c56ccd820e"
 binding = "CACHE"
 id = "59e9ad32e1154c1ca44f277c44c5e9f0"
 preview_id = "59e9ad32e1154c1ca44f277c44c5e9f0"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "petition-images"
+preview_bucket_name = "petition-images-preview"
 
 [env.staging]
 name = "petition-staging"
