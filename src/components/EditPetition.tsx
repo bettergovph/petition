@@ -7,7 +7,7 @@ import { Input } from './ui/input'
 import { Badge } from './ui/badge'
 import { petitionApi, categoryApi, ApiError } from '../services/api'
 import type { Category, PetitionWithDetails } from '../types/api'
-import MDEditor from '@uiw/react-md-editor'
+import MDEditor, { commands } from '@uiw/react-md-editor'
 import { useAuth } from '../hooks/useAuth'
 import { ArrowLeft, Save, Trash2 } from 'lucide-react'
 
@@ -210,6 +210,7 @@ export default function EditPetition() {
     try {
       if (imageState.file) {
         // Update petition with image using FormData
+        console.log('🖼️ EditPetition: Uploading new image file:', imageState.file.name)
         const submitFormData = new FormData()
         submitFormData.append('title', formData.title)
         submitFormData.append('description', formData.description)
@@ -231,8 +232,11 @@ export default function EditPetition() {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
+        console.log('✅ EditPetition: Image uploaded successfully')
       } else {
-        // Update petition without image using JSON
+        // Update petition without new image using JSON
+        // Don't include image_url to avoid sending base64 data
+        console.log('📝 EditPetition: Updating petition without new image')
         const petitionData = {
           title: formData.title,
           description: formData.description,
@@ -241,9 +245,11 @@ export default function EditPetition() {
           target_count: formData.targetCount,
           category_ids: formData.categories,
           status: formData.status
+          // Explicitly NOT including image_url to preserve existing image
         }
 
         await petitionApi.update(petition.id, petitionData)
+        console.log('✅ EditPetition: Petition updated successfully (no image change)')
       }
 
       // Clean up preview URL if it exists
@@ -472,23 +478,55 @@ export default function EditPetition() {
               <p className="text-sm text-gray-500 mb-4">
                 Explain the issue, why it matters, and what action you want taken. You can use markdown formatting for better presentation.
               </p>
-              <div className={`rounded-md overflow-hidden ${errors.description ? 'ring-2 ring-red-500' : ''}`}>
+              <div
+                className={`rounded-md overflow-hidden ${errors.description ? 'ring-2 ring-red-500' : ''}`}
+              >
                 <MDEditor
                   value={formData.description}
-                  onChange={(value) => handleInputChange('description', value || '')}
+                  onChange={value => handleInputChange('description', value || '')}
                   preview="edit"
                   hideToolbar={false}
                   visibleDragbar={false}
                   textareaProps={{
                     placeholder: t('create.descriptionPlaceholder'),
-                    style: { minHeight: '200px' },
+                    style: { minHeight: '200px', maxHeight: '400px' },
+                  }}
+                  data-color-mode="light"
+                  commands={[
+                    commands.bold,
+                    commands.italic,
+                    commands.unorderedListCommand,
+                    commands.orderedListCommand,
+                    commands.link
+                  ]}
+                  style={{ 
+                    border: '1px solid #ccc', 
+                    borderRadius: '0',
+                    backgroundColor: 'white'
                   }}
                   height={300}
                 />
               </div>
-              <div className="flex justify-between items-center mt-2">
-                {errors.description && <p className="text-sm text-red-600">{errors.description}</p>}
-                <p className="text-xs text-gray-500 ml-auto">{formData.description.length} characters</p>
+              <div className="flex justify-between items-start mt-2">
+                {errors.description && (
+                  <div className="flex items-center">
+                    <svg
+                      className="h-4 w-4 text-red-500 mr-1"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <p className="text-sm text-red-700 font-medium">{errors.description}</p>
+                  </div>
+                )}
+                <p className="text-xs text-gray-500 ml-auto">
+                  {formData.description.length} characters
+                </p>
               </div>
             </div>
 

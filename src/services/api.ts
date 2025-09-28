@@ -133,10 +133,6 @@ export const userApi = {
   async getById(id: number): Promise<User> {
     return apiRequest<User>(`/api/users/${id}`)
   },
-
-  async getByEmail(email: string): Promise<User> {
-    return apiRequest<User>(`/api/users/email/${encodeURIComponent(email)}`)
-  },
 }
 
 // Petition API

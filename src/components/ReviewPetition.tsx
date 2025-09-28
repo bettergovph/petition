@@ -85,7 +85,7 @@ export default function ReviewPetition() {
 
   const handleEdit = () => {
     if (petition) {
-      navigate(`/create?edit=${petition.id}`)
+      navigate(`/petition/${petition.slug}/edit`)
     }
   }
 
