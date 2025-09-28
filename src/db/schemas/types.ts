@@ -79,6 +79,6 @@ export interface CreateSignatureInput {
 }
 
 export interface PetitionWithDetails extends Petition {
-  creator: Pick<User, 'name' | 'email'>
+  creator: Pick<User, 'name'>
   categories: Category[]
 }
