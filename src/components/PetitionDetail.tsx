@@ -178,7 +178,7 @@ function PetitionDetailContent() {
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Petition Not Found</h1>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <p className="text-gray-800 mb-6">{error}</p>
           <Link to="/petitions">
             <Button>Browse All Petitions</Button>
           </Link>
@@ -217,7 +217,7 @@ function PetitionDetailContent() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
           <nav className="mb-6">
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <div className="flex items-center space-x-2 text-sm text-gray-800">
               <Link to="/" className="hover:text-blue-600">
                 Home
               </Link>
@@ -256,7 +256,7 @@ function PetitionDetailContent() {
                     <p className="text-lg text-blue-600 mb-4">📍 {petition.location}</p>
                   )}
 
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-4 text-sm text-gray-800">
                     <span>Started by {petition.creator.name || 'Anonymous'}</span>
                     <span>•</span>
                     <span>{new Date(petition.created_at).toLocaleDateString()}</span>
@@ -311,7 +311,7 @@ function PetitionDetailContent() {
                     ))}
                   </div>
                 ) : petition.current_count === 0 ? (
-                  <p className="text-gray-600">No signatures yet. Be the first to sign!</p>
+                  <p className="text-gray-800">No signatures yet. Be the first to sign!</p>
                 ) : (
                   <div className="space-y-4">
                     {signatures.map(signature => (
@@ -341,7 +341,7 @@ function PetitionDetailContent() {
               <div className="bg-white rounded-sm shadow-sm p-6 sticky top-8">
                 {/* Progress */}
                 <div className="mb-6">
-                  <div className="flex justify-between text-sm text-gray-600 mb-2">
+                  <div className="flex justify-between text-sm text-gray-800 mb-2">
                     <span className="font-semibold flex items-center gap-2">
                       {petition.current_count.toLocaleString()} signed
                       {refreshing && (
@@ -392,7 +392,7 @@ function PetitionDetailContent() {
                   </Button>
                 ) : (
                   <div className="text-center p-4 bg-gray-50 rounded-lg mb-4">
-                    <p className="text-gray-600">This petition is no longer active</p>
+                    <p className="text-gray-800">This petition is no longer active</p>
                   </div>
                 )}
 
@@ -404,7 +404,7 @@ function PetitionDetailContent() {
                         <Share className="h-5 w-5 text-blue-600" />
                         Share this petition
                       </h3>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-800">
                         Help spread the word and get more supporters
                       </p>
                     </div>

@@ -70,7 +70,7 @@ export default function PetitionCard({
         )}
 
         <div className="mb-4 flex-grow">
-          <div className="flex justify-between text-sm text-gray-600 mb-1">
+          <div className="flex justify-between text-sm text-gray-800 mb-1">
             <span>{petition.current_count.toLocaleString()} signatures</span>
             <span>{petition.target_count.toLocaleString()} target</span>
           </div>

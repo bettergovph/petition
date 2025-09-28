@@ -46,7 +46,7 @@ export default function SignInModal({
       <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-white shadow-xl border border-gray-200">
         <CardHeader className="border-b border-gray-200 text-center">
           <CardTitle className="text-xl text-gray-900">{title}</CardTitle>
-          <p className="text-gray-600 text-sm mt-1">{subtitle}</p>
+          <p className="text-gray-800 text-sm mt-1">{subtitle}</p>
         </CardHeader>
         <CardContent className="p-6 space-y-4">
           {hasGoogleProvider && (
@@ -79,7 +79,7 @@ export default function SignInModal({
             </div>
           )}
 
-          <div className="text-center text-sm text-gray-500 mt-6">
+          <div className="text-center text-sm text-gray-800 mt-6">
             By signing in, you agree to our Terms of Service and Privacy Policy
           </div>
 

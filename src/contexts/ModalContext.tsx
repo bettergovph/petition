@@ -37,8 +37,8 @@ export function ModalProvider({ children }: { children: ReactNode }) {
       signIn: {
         isOpen: true,
         options: {
-          title: 'Please sign in',
-          subtitle: 'Please sign in to continue',
+          title: 'Please sign in or register',
+          subtitle: 'It only takes a moment',
           ...options,
         },
       },

@@ -28,7 +28,7 @@ export default function SignInPage({ onClose }: SignInPageProps) {
       <Card className="w-full max-w-md bg-white shadow-xl border border-gray-200">
         <CardHeader className="text-center border-b border-gray-200">
           <CardTitle className="text-2xl text-gray-900">Sign In to Petition Platform</CardTitle>
-          <p className="text-gray-600 text-sm mt-2">
+          <p className="text-gray-800 text-sm mt-2">
             Sign in to create petitions and show your support
           </p>
         </CardHeader>

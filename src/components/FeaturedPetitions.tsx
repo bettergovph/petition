@@ -58,7 +58,7 @@ export default function FeaturedPetitions() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Featured Petitions</h1>
-            <p className="text-lg text-gray-600 mb-6">
+            <p className="text-lg text-gray-800 mb-6">
               Loading the most popular and successful petitions...
             </p>
           </div>
@@ -99,14 +99,14 @@ export default function FeaturedPetitions() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Featured Petitions</h1>
-          <p className="text-lg text-gray-600 mb-6">
+          <p className="text-lg text-gray-800 mb-6">
             Discover the most popular and successful petitions making real change
           </p>
         </div>
 
         {petitions.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-600 mb-4">No featured petitions available yet.</p>
+            <p className="text-gray-800 mb-4">No featured petitions available yet.</p>
             <Link to="/create">
               <Button>Start the First Petition</Button>
             </Link>
@@ -144,7 +144,7 @@ export default function FeaturedPetitions() {
                     )}
                     
                     <div className="mb-6">
-                      <div className="flex justify-between text-sm text-gray-600 mb-2">
+                      <div className="flex justify-between text-sm text-gray-800 mb-2">
                         <span className="font-semibold">{petitions[0].current_count.toLocaleString()} signatures</span>
                         <span>{petitions[0].target_count.toLocaleString()} target</span>
                       </div>

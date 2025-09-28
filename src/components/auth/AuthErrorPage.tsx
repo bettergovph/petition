@@ -39,7 +39,7 @@ export default function AuthErrorPage() {
           <CardTitle className="text-xl text-gray-900">Authentication Error</CardTitle>
         </CardHeader>
         <CardContent className="p-6 text-center space-y-4">
-          <p className="text-gray-600">{errorMessage}</p>
+          <p className="text-gray-800">{errorMessage}</p>
 
           {error && error !== 'Default' && (
             <div className="bg-gray-100 rounded p-3">

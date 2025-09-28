@@ -313,7 +313,7 @@ export default function EditPetition() {
       <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading petition...</p>
+          <p className="mt-4 text-gray-800">Loading petition...</p>
         </div>
       </div>
     )
@@ -325,7 +325,7 @@ export default function EditPetition() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <Card className="max-w-md mx-auto p-8 text-center">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Access Denied</h2>
-            <p className="text-gray-600 mb-6">You can only edit petitions that you created.</p>
+            <p className="text-gray-800 mb-6">You can only edit petitions that you created.</p>
             <Button onClick={() => navigate('/profile')} className="bg-blue-600 hover:bg-blue-700 text-white">
               Go to Profile
             </Button>
@@ -349,7 +349,7 @@ export default function EditPetition() {
             Back to Petition
           </Button>
           <h1 className="text-3xl font-bold text-gray-900">Edit Petition</h1>
-          <p className="mt-2 text-lg text-gray-600">
+          <p className="mt-2 text-lg text-gray-800">
             Update your petition details and settings
           </p>
         </div>
@@ -427,7 +427,7 @@ export default function EditPetition() {
                         {t('create.local')}
                       </label>
                     </div>
-                    <p className="mt-2 text-sm text-gray-600">
+                    <p className="mt-2 text-sm text-gray-800">
                       {t('create.localDescription')}
                     </p>
                   </div>
@@ -455,7 +455,7 @@ export default function EditPetition() {
                         {t('create.national')}
                       </label>
                     </div>
-                    <p className="mt-2 text-sm text-gray-600">
+                    <p className="mt-2 text-sm text-gray-800">
                       {t('create.nationalDescription')}
                     </p>
                   </div>

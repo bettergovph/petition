@@ -18,7 +18,7 @@ export default function PrivacyPolicy() {
 
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">Privacy Policy</h1>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <p className="text-gray-800 max-w-2xl mx-auto">
               Your privacy is important to us. This policy explains how we collect, use, and protect
               your personal information on BetterGov.ph.
             </p>

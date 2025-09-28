@@ -9,8 +9,8 @@ import { petitionApi, categoryApi, ApiError } from '../services/api'
 import type { Category } from '../types/api'
 import MDEditor, { commands } from '@uiw/react-md-editor'
 import { useAuth, type Session } from '../hooks/useAuth'
-import { useModal } from '../contexts/ModalContext'
 import { useTranslation } from 'react-i18next'
+import CreatePetitionSignIn from './auth/CreatePetitionSignIn'
 
 interface CreatePetitionFormData {
   title: string
@@ -36,7 +36,6 @@ export default function CreatePetition() {
     session: Session | null
     status: 'loading' | 'authenticated' | 'unauthenticated'
   } = useAuth()
-  const { showSignInModal } = useModal()
   const { t } = useTranslation('common')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -284,7 +283,7 @@ export default function CreatePetition() {
       <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">
+          <p className="mt-4 text-gray-800">
             {status === 'loading' ? t('create.signInRequired') : 'Loading form...'}
           </p>
         </div>
@@ -292,68 +291,9 @@ export default function CreatePetition() {
     )
   }
 
-  // Show sign-in prompt if not authenticated
-  if (status !== 'authenticated' || !session) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">{t('create.title')}</h1>
-            <p className="text-lg text-gray-600 mb-8">{t('create.subtitle')}</p>
-
-            <Card className="max-w-md mx-auto p-8">
-              <div className="text-center space-y-6">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-                  <svg
-                    className="w-8 h-8 text-blue-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                    />
-                  </svg>
-                </div>
-
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                    {t('create.signInRequired')}
-                  </h2>
-                  <p className="text-gray-600 text-sm">{t('create.signInSubtitle')}</p>
-                </div>
-
-                <div className="space-y-3">
-                  <Button
-                    onClick={() => showSignInModal({
-                      title: 'Sign In to Create Petition',
-                      subtitle: 'Sign in to start creating your petition'
-                    })}
-                    disabled={isSubmitting}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center gap-3 h-12"
-                  >
-                    {t('create.signInRequired')}
-                  </Button>
-                </div>
-
-                <div className="pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate('/')}
-                    className="w-full text-gray-600 hover:text-gray-800"
-                  >
-                    Back to Home
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </div>
-      </div>
-    )
+  // Show sign-in prompt if user is not authenticated
+  if (status !== 'authenticated') {
+    return <CreatePetitionSignIn isSubmitting={isSubmitting} />
   }
 
   return (
@@ -361,7 +301,7 @@ export default function CreatePetition() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">{t('create.title')}</h1>
-          <p className="mt-2 text-lg text-gray-600">{t('create.subtitle')}</p>
+          <p className="mt-2 text-lg text-gray-800">{t('create.subtitle')}</p>
         </div>
 
         <Card className="p-8 bg-white shadow-lg border border-gray-200">

@@ -94,7 +94,7 @@ export default function ReviewPetition() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading petition...</p>
+          <p className="text-gray-800">Loading petition...</p>
         </div>
       </div>
     )
@@ -105,7 +105,7 @@ export default function ReviewPetition() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="p-8 max-w-md text-center">
           <h2 className="text-xl font-semibold text-red-600 mb-4">Error</h2>
-          <p className="text-gray-600 mb-6">{error || 'Petition not found'}</p>
+          <p className="text-gray-800 mb-6">{error || 'Petition not found'}</p>
           <Button onClick={() => navigate('/')} variant="outline">
             Back to Home
           </Button>
@@ -143,7 +143,7 @@ export default function ReviewPetition() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-gray-900">Review Your Petition</h2>
-              <p className="text-gray-600 mt-1">Make sure everything looks perfect before going live</p>
+              <p className="text-gray-800 mt-1">Make sure everything looks perfect before going live</p>
             </div>
             <div className="flex gap-3">
               <Button variant="outline" onClick={handleEdit} className="flex items-center gap-2">
@@ -182,7 +182,7 @@ export default function ReviewPetition() {
                 <Eye className="h-5 w-5 text-blue-600 mt-1" />
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900">Petition Preview</h2>
-                  <p className="text-sm text-gray-600">This is how your petition will appear to supporters</p>
+                  <p className="text-sm text-gray-800">This is how your petition will appear to supporters</p>
                 </div>
               </div>
 
@@ -222,13 +222,13 @@ export default function ReviewPetition() {
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                   <div className="flex items-center gap-2">
                     <Target className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-gray-800">
                       Target: <span className="font-medium">{petition.target_count.toLocaleString()}</span> signatures
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-gray-800">
                       Due: <span className="font-medium">{new Date(petition.due_date).toLocaleDateString()}</span>
                     </span>
                   </div>
@@ -247,7 +247,7 @@ export default function ReviewPetition() {
                     What's Next? 
                     <Sparkles className="h-4 w-4 text-yellow-500" />
                   </h2>
-                  <p className="text-sm text-gray-600">Your journey to making change starts now!</p>
+                  <p className="text-sm text-gray-800">Your journey to making change starts now!</p>
                 </div>
               </div>
 
@@ -260,7 +260,7 @@ export default function ReviewPetition() {
                     <h3 className="font-medium text-gray-900 flex items-center gap-2">
                       🚀 Your petition goes live instantly!
                     </h3>
-                    <p className="text-sm text-gray-600">Supporters worldwide can discover and sign your petition right away</p>
+                    <p className="text-sm text-gray-800">Supporters worldwide can discover and sign your petition right away</p>
                   </div>
                 </div>
 
@@ -272,7 +272,7 @@ export default function ReviewPetition() {
                     <h3 className="font-medium text-gray-900 flex items-center gap-2">
                       📢 Share and amplify your voice
                     </h3>
-                    <p className="text-sm text-gray-600">Spread the word on social media, email friends, and rally your community</p>
+                    <p className="text-sm text-gray-800">Spread the word on social media, email friends, and rally your community</p>
                   </div>
                 </div>
 
@@ -284,7 +284,7 @@ export default function ReviewPetition() {
                     <h3 className="font-medium text-gray-900 flex items-center gap-2">
                       💬 Build a movement together
                     </h3>
-                    <p className="text-sm text-gray-600">Connect with supporters, share updates, and keep the momentum growing</p>
+                    <p className="text-sm text-gray-800">Connect with supporters, share updates, and keep the momentum growing</p>
                   </div>
                 </div>
 
@@ -296,7 +296,7 @@ export default function ReviewPetition() {
                     <h3 className="font-medium text-gray-900 flex items-center gap-2">
                       🏆 Achieve real change!
                     </h3>
-                    <p className="text-sm text-gray-600">Present your petition to decision makers and celebrate your victory</p>
+                    <p className="text-sm text-gray-800">Present your petition to decision makers and celebrate your victory</p>
                   </div>
                 </div>
               </div>
@@ -350,7 +350,7 @@ export default function ReviewPetition() {
                 </div>
                 <h3 className="font-semibold text-gray-900">🚀 Pro Tips for Maximum Impact</h3>
               </div>
-              <div className="space-y-3 text-sm text-gray-600">
+              <div className="space-y-3 text-sm text-gray-800">
                 <div className="flex items-start gap-3 p-2 bg-white rounded-lg">
                   <Share2 className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
                   <p><strong>Strike while it's hot!</strong> Share within 24 hours to build unstoppable momentum</p>

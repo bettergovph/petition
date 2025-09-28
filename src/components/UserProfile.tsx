@@ -79,7 +79,7 @@ export default function UserProfile() {
       <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading profile...</p>
+          <p className="mt-4 text-gray-800">Loading profile...</p>
         </div>
       </div>
     )
@@ -91,7 +91,7 @@ export default function UserProfile() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <Card className="max-w-md mx-auto p-8 text-center">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Sign In Required</h2>
-            <p className="text-gray-600 mb-6">Please sign in to view your profile.</p>
+            <p className="text-gray-800 mb-6">Please sign in to view your profile.</p>
             <Button 
               onClick={() => showSignInModal()}
               className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -146,15 +146,15 @@ export default function UserProfile() {
                   {session.user.name || 'User'}
                 </h1>
                 <div className="flex flex-wrap gap-4">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2 text-sm text-gray-800">
                     <BarChart3 className="w-4 h-4" />
                     <span>{userStats.petitionsCreated} petitions created</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2 text-sm text-gray-800">
                     <Heart className="w-4 h-4" />
                     <span>{userStats.petitionsSigned} petitions supported</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2 text-sm text-gray-800">
                     <Users className="w-4 h-4" />
                     <span>{userStats.totalSignaturesReceived} total signatures received</span>
                   </div>
@@ -210,7 +210,7 @@ export default function UserProfile() {
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading...</p>
+            <p className="mt-4 text-gray-800">Loading...</p>
           </div>
         ) : (
           <>
@@ -226,7 +226,7 @@ export default function UserProfile() {
                         </div>
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Petitions Created</p>
+                        <p className="text-sm font-medium text-gray-800">Petitions Created</p>
                         <p className="text-2xl font-bold text-gray-900">{userStats.petitionsCreated}</p>
                       </div>
                     </div>
@@ -242,7 +242,7 @@ export default function UserProfile() {
                         </div>
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Petitions Supported</p>
+                        <p className="text-sm font-medium text-gray-800">Petitions Supported</p>
                         <p className="text-2xl font-bold text-gray-900">{userStats.petitionsSigned}</p>
                       </div>
                     </div>
@@ -258,7 +258,7 @@ export default function UserProfile() {
                         </div>
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Total Signatures</p>
+                        <p className="text-sm font-medium text-gray-800">Total Signatures</p>
                         <p className="text-2xl font-bold text-gray-900">{userStats.totalSignaturesReceived}</p>
                       </div>
                     </div>
@@ -285,7 +285,7 @@ export default function UserProfile() {
                             <div key={petition.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                               <div className="flex-1">
                                 <h4 className="font-medium text-gray-900">{petition.title}</h4>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-800">
                                   {petition.current_count} of {petition.target_count} signatures
                                 </p>
                               </div>
@@ -312,7 +312,7 @@ export default function UserProfile() {
                         <BarChart3 className="w-8 h-8 text-gray-400" />
                       </div>
                       <h3 className="text-lg font-semibold text-gray-900 mb-2">No petitions created yet</h3>
-                      <p className="text-gray-600 mb-6">Start making a difference by creating your first petition.</p>
+                      <p className="text-gray-800 mb-6">Start making a difference by creating your first petition.</p>
                       <Link to="/create">
                         <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                           Create Your First Petition
@@ -339,7 +339,7 @@ export default function UserProfile() {
                               <div className="flex items-start justify-between mb-3">
                                 <div>
                                   <h3 className="text-xl font-semibold text-gray-900 mb-2">{petition.title}</h3>
-                                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                                  <div className="flex items-center gap-4 text-sm text-gray-800 mb-2">
                                     <div className="flex items-center gap-1">
                                       <Calendar className="w-4 h-4" />
                                       <span>Created {formatDate(petition.created_at)}</span>
@@ -376,13 +376,13 @@ export default function UserProfile() {
                                 <div className="flex items-center gap-6">
                                   <div className="flex items-center gap-2">
                                     <Users className="w-4 h-4 text-gray-500" />
-                                    <span className="text-sm text-gray-600">
+                                    <span className="text-sm text-gray-800">
                                       {petition.current_count} of {petition.target_count} signatures
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <Target className="w-4 h-4 text-gray-500" />
-                                    <span className="text-sm text-gray-600">
+                                    <span className="text-sm text-gray-800">
                                       {Math.round((petition.current_count / petition.target_count) * 100)}% complete
                                     </span>
                                   </div>
@@ -418,7 +418,7 @@ export default function UserProfile() {
                     <Heart className="w-8 h-8 text-gray-400" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Supported petitions coming soon</h3>
-                  <p className="text-gray-600">This feature will show all the petitions you've signed and supported.</p>
+                  <p className="text-gray-800">This feature will show all the petitions you've signed and supported.</p>
                 </CardContent>
               </Card>
             )}

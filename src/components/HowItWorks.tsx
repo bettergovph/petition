@@ -152,7 +152,7 @@ export default function HowItWorks() {
         <section className="mb-20">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">{t('howItWorks.stepsTitle')}</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-800 max-w-2xl mx-auto">
               {t('howItWorks.stepsSubtitle')}
             </p>
           </div>
@@ -176,7 +176,7 @@ export default function HowItWorks() {
                 {/* Content */}
                 <div className="flex-1">
                   <h3 className="text-xl font-bold text-gray-900 mb-3">{step.title}</h3>
-                  <p className="text-gray-600 mb-4 text-sm leading-relaxed">{step.description}</p>
+                  <p className="text-gray-800 mb-4 text-sm leading-relaxed">{step.description}</p>
 
                   <ul className="space-y-2">
                     {step.details.slice(0, 3).map((detail, detailIndex) => (
@@ -201,7 +201,7 @@ export default function HowItWorks() {
         <section className="mb-20">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">{t('howItWorks.typesTitle')}</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-800 max-w-2xl mx-auto">
               {t('howItWorks.typesSubtitle')}
             </p>
           </div>
@@ -219,7 +219,7 @@ export default function HowItWorks() {
                     <h3 className="text-2xl font-bold text-gray-900">{type.type}</h3>
                   </div>
 
-                  <p className="text-gray-600 mb-6">{type.description}</p>
+                  <p className="text-gray-800 mb-6">{type.description}</p>
 
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-3">
@@ -246,7 +246,7 @@ export default function HowItWorks() {
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
               {t('howItWorks.featuresTitle')}
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-800 max-w-2xl mx-auto">
               {t('howItWorks.featuresSubtitle')}
             </p>
           </div>
@@ -259,7 +259,7 @@ export default function HowItWorks() {
                     <feature.icon className="w-8 h-8 text-blue-600" />
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                  <p className="text-gray-600 text-sm">{feature.description}</p>
+                  <p className="text-gray-800 text-sm">{feature.description}</p>
                 </CardContent>
               </Card>
             ))}

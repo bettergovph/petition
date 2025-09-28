@@ -21,6 +21,7 @@ export interface Petition {
   location?: string
   slug: string
   due_date: string
+  published_at?: string // NULL if unpublished, timestamp if published
   created_by: string // Changed from number to string
   created_at: string
   updated_at: string

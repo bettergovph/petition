@@ -22,7 +22,7 @@ export default function TermsOfService() {
               <Heart className="w-5 h-5" />
               <span className="font-semibold">Volunteer-Led Civic Project</span>
             </div>
-            <p className="text-gray-600 max-w-2xl mx-auto">
+            <p className="text-gray-800 max-w-2xl mx-auto">
               BetterGov.ph is a community-driven platform operated by volunteers dedicated to
               strengthening democratic participation in the Philippines.
             </p>
@@ -72,7 +72,7 @@ export default function TermsOfService() {
                 changes through the Platform. Your continued use after such changes constitutes
                 acceptance of the new Terms.
               </p>
-              <p className="text-sm text-gray-600 italic">
+              <p className="text-sm text-gray-800 italic">
                 Last updated:{' '}
                 {new Date().toLocaleDateString('en-US', {
                   year: 'numeric',
@@ -189,7 +189,7 @@ export default function TermsOfService() {
                 <li>You can request deletion of your account and associated data</li>
                 <li>We use secure authentication through trusted providers (Google, Facebook)</li>
               </ul>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-800">
                 For detailed information about data handling, please review our Privacy Policy.
               </p>
             </CardContent>
@@ -300,7 +300,7 @@ export default function TermsOfService() {
                   <strong>Platform:</strong> Use the contact form on our website
                 </p>
               </div>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-800">
                 Please note that as a volunteer-operated platform, response times may vary. We
                 appreciate your patience and understanding.
               </p>
@@ -317,7 +317,7 @@ export default function TermsOfService() {
                 Made with ❤️ by Filipino Volunteers
               </span>
             </div>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-800 mb-4">
               BetterGov.ph is a non-profit, volunteer-driven initiative dedicated to strengthening
               democracy and civic engagement in the Philippines.
             </p>

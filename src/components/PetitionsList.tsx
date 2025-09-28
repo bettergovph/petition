@@ -36,7 +36,7 @@ export default function PetitionsList() {
             <h2 className="text-3xl font-bold text-gray-900 mb-4 font-[Figtree]">
               Featured Petitions
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-800 max-w-2xl mx-auto">
               Loading petitions...
             </p>
           </div>
@@ -80,7 +80,7 @@ export default function PetitionsList() {
           <h2 className="text-3xl font-bold text-gray-900 mb-4 font-[Figtree]">
             Featured Petitions
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-800 max-w-2xl mx-auto">
             Discover petitions that are making a real difference in communities nationwide
           </p>
         </div>
@@ -93,7 +93,7 @@ export default function PetitionsList() {
 
         {petitions.length === 0 && !loading && !error && (
           <div className="text-center">
-            <p className="text-gray-600 mb-4">No petitions found. Be the first to create one!</p>
+            <p className="text-gray-800 mb-4">No petitions found. Be the first to create one!</p>
             <Link to="/create">
               <Button>Create a Petition</Button>
             </Link>
