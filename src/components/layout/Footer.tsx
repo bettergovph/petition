@@ -60,8 +60,8 @@ const Footer: React.FC = () => {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 pt-12 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+          <div className="col-span-2">
             <div className="flex items-center mb-4">
               <img
                 src="/logos/svg/BetterGov_Icon-White.svg"
@@ -71,11 +71,11 @@ const Footer: React.FC = () => {
 
               <div>
                 <div className="font-bold">Petitions by BetterGov.ph</div>
-                <div className="text-xs text-gray-400">A community-led initiative</div>
+                <div className="text-xs text-gray-400">A community-led initiative.</div>
               </div>
             </div>
-            <p className="text-gray-400 text-sm mb-4">
-              A community portal providing Philippine citizens, businesses, and visitors with
+            <p className="text-gray-400 text-sm mb-4 max-w-md">
+              This service is provided by BetterGov.ph. A community portal providing Philippine citizens, businesses, and visitors with
               information and services.
             </p>
             <div className="flex space-x-4">
@@ -128,8 +128,10 @@ const Footer: React.FC = () => {
             </p>
             <div className="flex space-x-6">
               <Link
-                to="https://github.com/bettergovph/bettergov"
+                to="https://github.com/bettergovph"
                 className="text-gray-400 hover:text-white text-sm transition-colors"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 Contribute at GitHub
               </Link>

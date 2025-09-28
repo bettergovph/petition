@@ -64,7 +64,7 @@ const Navbar: React.FC = () => {
         <div className="container mx-auto px-4 flex justify-end items-center h-10">
           <div className="flex items-center space-x-4">
             <Link
-              to="/join-us"
+              to="https://bettergov.ph/join-us"
               className="text-xs text-primary-600 hover:text-primary-700 font-semibold transition-colors"
             >
               🚀 {t('navbar.join us')}
@@ -106,7 +106,7 @@ const Navbar: React.FC = () => {
               />
               <div>
                 <div className="text-black font-bold">Petitions by BetterGov.ph</div>
-                <div className="text-xs text-gray-800">Change starts here</div>
+                <div className="text-xs text-gray-800">Change starts here.</div>
               </div>
             </Link>
           </div>
