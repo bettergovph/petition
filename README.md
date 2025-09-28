@@ -1,27 +1,26 @@
-# Petition Platform
+# Petitions by BetterGov.ph
 
-A modern petition platform built with React, TypeScript, Vite, and Cloudflare D1. Users can create, browse, and sign petitions for local and national causes.
+A modern, community-driven petition platform empowering Filipino citizens to create meaningful change. Built for transparency, accessibility, and impact.
+
+## 🇵🇭 About
+
+**Petitions by BetterGov.ph** is a free, open-source platform that enables Filipino citizens to:
+- Create and share petitions for local and national issues
+- Gather support from communities across the Philippines
+- Track petition progress and engagement
+- Connect with like-minded advocates for change
+
+This platform is part of the [BetterGov.ph](https://bettergov.ph) initiative to improve governance and civic engagement in the Philippines.
 
 ## ✨ Features
 
-- 📝 **Create Petitions** - Rich markdown editor, image upload, category tagging
-- 🗳️ **Sign Petitions** - Anonymous or named signatures with comments
-- 🏛️ **Petition Types** - Local (with location) and National petitions
-- 📊 **Progress Tracking** - Real-time signature counts and progress bars
-- 🏷️ **Categories** - Environment, Education, Healthcare, Social Justice, and more
-- 📱 **Responsive Design** - Works great on desktop and mobile
-- 🔒 **Data Privacy** - Anonymous signing options
-- 🧪 **E2E Testing** - Comprehensive Playwright test suite
-
-## 🛠️ Tech Stack
-
-- **Frontend**: React 19, TypeScript, Tailwind CSS
-- **Build Tool**: Vite
-- **Backend**: Cloudflare Workers/Pages Functions
-- **Database**: Cloudflare D1 (SQLite)
-- **Markdown Editor**: @uiw/react-md-editor
-- **Testing**: Playwright for E2E tests
-- **Deployment**: Cloudflare Pages
+- 📝 **Create Petitions** - Rich text editor with image support
+- 🗳️ **Sign & Support** - Anonymous or public signatures with comments
+- 🏛️ **Local & National** - Target specific regions or the entire country
+- 📊 **Real-time Progress** - Live signature counts and progress tracking
+- 🏷️ **Categorized** - Environment, Education, Healthcare, Social Justice, and more
+- 📱 **Mobile-Friendly** - Works seamlessly on all devices
+- 🔒 **Privacy-First** - Anonymous signing options and data protection
 
 ## 🚀 Quick Start
 
@@ -29,399 +28,99 @@ A modern petition platform built with React, TypeScript, Vite, and Cloudflare D1
 
 - Node.js 18+ and npm
 - [Cloudflare CLI (Wrangler)](https://developers.cloudflare.com/workers/wrangler/install-and-update/)
-- A Cloudflare account (free tier works)
 
-### 1. Clone and Install
+### Setup
 
-```bash
-git clone <your-repo-url>
-cd petition
-npm install
-```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/bettergovph/petition.git
+   cd petition
+   npm install
+   ```
 
-### 2. Set Up Cloudflare D1 Database
+2. **Set up the database**
+   ```bash
+   npm run db:setup
+   ```
 
-#### Install Wrangler (if not already installed)
+3. **Start development server**
+   ```bash
+   npm run dev
+   ```
 
-```bash
-npm install -g wrangler
-```
+4. **Open your browser**
+   
+   Visit `http://localhost:5173` to see the platform in action!
 
-#### Login to Cloudflare (optional)
+> For detailed setup instructions and technical documentation, see [ARCHITECTURE.md](./ARCHITECTURE.md)
 
-```bash
-wrangler login
-```
+## 🤝 Contributing
 
-#### Create Local D1 Database
+We welcome contributions from developers, designers, and advocates who want to help improve civic engagement in the Philippines!
 
-```bash
-# Create and seed the database
-npm run db:setup
+### How to Contribute
 
-# This will output a database ID - copy it to wrangler.toml
-```
+1. **Fork the repository** on GitHub
+2. **Create a feature branch** (`git checkout -b feature/amazing-feature`)
+3. **Make your changes** and test them locally
+4. **Commit your changes** (`git commit -m 'Add amazing feature'`)
+5. **Push to your branch** (`git push origin feature/amazing-feature`)
+6. **Open a Pull Request** with a clear description of your changes
 
-#### Or manually update wrangler.toml (optional)
+### Development Guidelines
 
-Replace the `database_id` in `wrangler.toml` with your new database ID:
+- Follow the existing code style and conventions
+- Add tests for new features when applicable
+- Update documentation for significant changes
+- Keep commits focused and write clear commit messages
 
-```toml
-[[d1_databases]]
-binding = "DB"
-database_name = "petition-db"
-database_id = "your-database-id-here"  # Replace with actual ID
-```
+### Ways to Contribute
 
-#### Verify Local Database Setup
+- 🐛 **Report bugs** - Help us identify and fix issues
+- 💡 **Suggest features** - Share ideas for platform improvements
+- 🔧 **Code contributions** - Fix bugs, add features, improve performance
+- 📖 **Documentation** - Help improve setup guides and user documentation
+- 🎨 **Design** - Contribute to UI/UX improvements
+- 🌐 **Translation** - Help translate the platform to other Filipino languages
 
-```bash
-# List local D1 databases
-wrangler d1 list --local
-
-# Query your local database
-wrangler d1 execute petition-db --local --command "SELECT COUNT(*) FROM petitions"
-```
-
-### 3. Start Development Server
-
-```bash
-npm run dev
-```
-
-The app will be available at `http://localhost:5173`
-
-## 📊 Database Schema
-
-The application uses the following main tables:
-
-### Users
-
-- `id` (Primary Key)
-- `first_name`, `last_name`, `email`
-- `anonymous` (Boolean)
-- Timestamps
-
-### Petitions
-
-- `id` (Primary Key)
-- `title`, `description`, `slug`
-- `type` ('local' | 'national')
-- `location` (for local petitions)
-- `image_url`, `target_count`, `current_count`
-- `status` ('active' | 'completed' | 'closed')
-- `due_date`, `created_by`
-- Timestamps
-
-### Signatures
-
-- `petition_id`, `user_id` (Composite key)
-- `comment`, `anonymous`, `ip_address`
-- Unique constraint prevents duplicate signatures
-
-### Categories & Petition_Categories
-
-- Category system with many-to-many relationship
-
-## 🎯 Available Scripts
-
-### Development
+### Available Scripts
 
 ```bash
 npm run dev          # Start development server
 npm run build        # Build for production
-npm run preview      # Preview production build
+npm run test:e2e     # Run end-to-end tests
+npm run lint         # Check code quality
+npm run format       # Format code with Prettier
 ```
 
-### Database
-
-```bash
-npm run db:create    # Create new D1 database
-npm run db:setup      # Setup and seed database
-```
-
-### Code Quality
-
-```bash
-npm run lint         # Run ESLint
-npm run lint:fix     # Fix ESLint errors
-npm run format       # Format with Prettier
-npm run format:check # Check formatting
-```
-
-### Testing
-
-```bash
-npm run test:e2e     # Run E2E tests
-npm run test:e2e:ui  # Run E2E tests with UI
-npm run test:e2e:headed # Run E2E tests in headed mode
-```
-
-## 🗄️ Cloudflare D1 Local Development
-
-### Understanding D1 Local vs Remote
-
-- **Local**: Uses SQLite file in `.wrangler/state/d1/`
-- **Remote**: Uses Cloudflare's D1 service
-
-### Working with Local D1
-
-```bash
-# Execute SQL commands locally
-wrangler d1 execute petition-db --local --command "SELECT * FROM petitions LIMIT 5"
-
-# Execute SQL file locally
-wrangler d1 execute petition-db --local --file=./custom-query.sql
-
-# Start D1 console (interactive)
-wrangler d1 execute petition-db --local
-
-# View local D1 data location
-ls -la .wrangler/state/d1/
-```
-
-### Database Management Commands
-
-```bash
-# Check table structure
-wrangler d1 execute petition-db --local --command "PRAGMA table_info(petitions)"
-
-# Count records in each table
-wrangler d1 execute petition-db --local --command "
-SELECT
-  'users' as table_name, COUNT(*) as count FROM users
-UNION ALL
-SELECT
-  'petitions', COUNT(*) FROM petitions
-UNION ALL
-SELECT
-  'signatures', COUNT(*) FROM signatures
-UNION ALL
-SELECT
-  'categories', COUNT(*) FROM categories"
-
-# Reset database (drops all data)
-wrangler d1 execute petition-db --local --command "
-DROP TABLE IF EXISTS petition_categories;
-DROP TABLE IF EXISTS signatures;
-DROP TABLE IF EXISTS petitions;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS categories;"
-```
-
-### Backup and Restore
-
-```bash
-# Backup local database
-cp .wrangler/state/d1/*.sqlite3 backup/
-
-# Export data to SQL
-wrangler d1 export petition-db --local --output backup.sql
-```
-
-## 🚀 Deployment
-
-### Deploy to Cloudflare Pages
-
-1. **Create Production Database**:
-
-   ```bash
-   wrangler d1 create petition-db-prod
-   ```
-
-2. **Update wrangler.toml** with production database ID
-
-3. **Run Production Migrations**:
-
-   ```bash
-   wrangler d1 execute petition-db-prod --file=./src/db/migrations/001_create_tables.sql
-   wrangler d1 execute petition-db-prod --file=./src/db/migrations/002_add_due_date_and_slug.sql
-   wrangler d1 execute petition-db-prod --file=./src/db/seeds/001_seed_data.sql
-   ```
-
-4. **Deploy**:
-
-   ```bash
-   npm run build
-   wrangler pages deploy dist
-   ```
-
-## 🧪 Testing
-
-The project includes comprehensive E2E tests using Playwright:
-
-### Test Coverage
-
-- ✅ Petition browsing and listing
-- ✅ Petition detail pages
-- ✅ Petition creation (all form features)
-- ✅ Petition signing (named, anonymous, with comments)
-- ✅ Full workflow testing
-
-### Running Tests
-
-```bash
-# Run all tests
-npm run test:e2e
-
-# Run with browser UI
-npm run test:e2e:ui
-
-# Run specific test file
-npx playwright test petitions.spec.ts
-
-# Debug tests
-npx playwright test --debug
-```
-
-See `tests/README.md` for detailed testing documentation.
-
-## 🏗️ Project Structure
-
-```
-petition/
-├── src/
-│   ├── components/          # React components
-│   │   ├── ui/             # Reusable UI components
-│   │   ├── PetitionDetail.tsx
-│   │   ├── CreatePetition.tsx
-│   │   └── SignPetitionModal.tsx
-│   ├── db/
-│   │   ├── migrations/     # Database migrations
-│   │   ├── seeds/          # Seed data
-│   │   └── service.ts      # Database service layer
-│   ├── services/
-│   │   └── api.ts          # API client
-│   └── types/
-│       └── api.ts          # TypeScript types
-├── functions/               # Cloudflare Pages Functions
-│   └── api/                # API routes
-├── tests/
-│   ├── e2e/                # Playwright E2E tests
-│   └── README.md           # Testing documentation
-├── wrangler.toml           # Cloudflare configuration
-└── playwright.config.ts    # Playwright configuration
-```
-
-## 🎨 Key Components
-
-### CreatePetition
-
-- Card-based petition type selection
-- Markdown editor for rich descriptions
-- Base64 image upload
-- Category dropdown with tag display
-- Form validation
-
-### PetitionDetail
-
-- Progress tracking visualization
-- Recent signatures list
-- Share functionality
-- Sign petition modal
-
-### SignPetitionModal
-
-- Form validation
-- Anonymous signing option
-- Comment support
-- Character counting
-
-## 🔧 Environment Variables
-
-Create a `.dev.vars` file for local development:
-
-```env
-# Add any environment variables here
-# DATABASE_URL is handled by Wrangler automatically
-```
-
-## 📝 API Routes
-
-The application uses Cloudflare Pages Functions for API routes:
-
-- `GET /api/petitions` - List petitions
-- `GET /api/petition/[slug]` - Get petition by slug
-- `POST /api/petitions` - Create petition
-- `GET /api/petitions/[id]/signatures` - Get signatures
-- `POST /api/signatures` - Create signature
-- `GET /api/categories` - List categories
-- `POST /api/users` - Create user
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Database not found**:
-
-```bash
-# Recreate local database
-wrangler d1 create petition-db --local
-# Re-run migrations
-npm run db:migrate && npm run db:migrate:002 && npm run db:seed
-```
-
-**Wrangler not found**:
-
-```bash
-# Install globally
-npm install -g wrangler
-# Or use npx
-npx wrangler login
-```
-
-**Build errors**:
-
-```bash
-# Clean install
-rm -rf node_modules package-lock.json
-npm install
-```
-
-**Tests failing**:
-
-```bash
-# Install Playwright browsers
-npx playwright install
-# Start dev server in separate terminal
-npm run dev
-```
-
-### Database Issues
-
-**Reset local database completely**:
-
-```bash
-rm -rf .wrangler/state/d1/
-npm run db:migrate && npm run db:migrate:002 && npm run db:seed
-```
-
-**Check database file location**:
-
-```bash
-ls -la .wrangler/state/d1/
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new features
-5. Run the test suite
-6. Submit a pull request
+## 🛠️ Tech Stack
+
+- **Frontend**: React 19, TypeScript, Tailwind CSS
+- **Backend**: Cloudflare Workers/Pages Functions  
+- **Database**: Cloudflare D1 (SQLite)
+- **Deployment**: Cloudflare Pages
+- **Testing**: Playwright E2E tests
+
+## 📞 Support & Community
+
+- **Issues**: [GitHub Issues](https://github.com/bettergovph/petition/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/bettergovph/petition/discussions)
+- **Website**: [BetterGov.ph](https://bettergov.ph)
+- **Email**: [hello@bettergov.ph](mailto:hello@bettergov.ph)
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
 ## 🙏 Acknowledgments
 
-- Built with [Cloudflare D1](https://developers.cloudflare.com/d1/) for the database
+- Built by the [BetterGov.ph](https://bettergov.ph) community
+- Powered by [Cloudflare](https://cloudflare.com) infrastructure
 - UI components inspired by [shadcn/ui](https://ui.shadcn.com/)
 - Icons from [Lucide React](https://lucide.dev/)
-- Testing with [Playwright](https://playwright.dev/)
 
 ---
 
-For more detailed information about specific features, check the documentation in the relevant component files and the `tests/` directory.
+**Made with ❤️ for the Philippines** 🇵🇭
+
+*Empowering citizens to create meaningful change through technology and community.*
