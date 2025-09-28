@@ -206,7 +206,7 @@ export const petitionApi = {
   },
 
   async publish(id: number): Promise<Petition> {
-    const result = await apiRequest<Petition>(`/api/petitions/${id}/publish`, {
+    const result = await apiRequest<Petition>(`/api/petition/${id}/publish`, {
       method: 'POST',
     })
     
@@ -215,6 +215,28 @@ export const petitionApi = {
     cacheUtils.delete(`GET:/api/petitions/${id}:`)
     
     return result
+  },
+
+  async unpublish(id: number): Promise<Petition> {
+    const result = await apiRequest<Petition>(`/api/petition/${id}/unpublish`, {
+      method: 'POST',
+    })
+    
+    // Invalidate related caches after unpublishing a petition
+    cacheUtils.invalidatePattern('GET:/api/petitions')
+    cacheUtils.delete(`GET:/api/petitions/${id}:`)
+    
+    return result
+  },
+
+  async delete(id: number): Promise<void> {
+    await apiRequest<void>(`/api/petitions/${id}`, {
+      method: 'DELETE',
+    })
+    
+    // Invalidate all petition caches after deletion
+    cacheUtils.invalidatePattern('GET:/api/petitions')
+    cacheUtils.delete(`GET:/api/petitions/${id}:`)
   },
 }
 

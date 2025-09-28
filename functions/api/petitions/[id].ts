@@ -121,6 +121,18 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
       return createSuccessResponse(updatedPetition)
     }
 
+    if (context.request.method === 'DELETE') {
+      // Delete petition
+      await db.deletePetition(petitionId)
+      
+      // Invalidate all petition caches when a petition is deleted
+      console.log(`🗑️ Petition ${petitionId} deleted - invalidating petition caches`)
+      await invalidateCachePattern('petitions:', context.env.CACHE)
+      await invalidateCachePattern('petition:', context.env.CACHE)
+      
+      return createSuccessResponse({ message: 'Petition deleted successfully' })
+    }
+
     return createCachedErrorResponse('Method not allowed', context.request, context.env, 405)
   } catch (error) {
     console.error('Petition API Error:', error)

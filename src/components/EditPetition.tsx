@@ -51,6 +51,10 @@ export default function EditPetition() {
   const [errors, setErrors] = useState<Partial<Record<keyof EditPetitionFormData, string>>>({})
   const [submitError, setSubmitError] = useState<string>('')
   const [imageState, setImageState] = useState<ImageUploadState>({ file: null, url: '' })
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteConfirmTitle, setDeleteConfirmTitle] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [isUnpublishing, setIsUnpublishing] = useState(false)
 
   // Load petition and categories on component mount
   useEffect(() => {
@@ -189,6 +193,39 @@ export default function EditPetition() {
       : [...formData.categories, categoryId]
 
     handleInputChange('categories', updatedCategories.map(String))
+  }
+
+  const handleUnpublish = async () => {
+    if (!petition) return
+
+    setIsUnpublishing(true)
+    try {
+      await petitionApi.unpublish(petition.id)
+      navigate(`/petition/${petition.slug}`)
+    } catch (error) {
+      console.error('Error unpublishing petition:', error)
+      setSubmitError('Failed to unpublish petition. Please try again.')
+    } finally {
+      setIsUnpublishing(false)
+    }
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!petition || deleteConfirmTitle !== petition.title) {
+      return
+    }
+
+    setIsDeleting(true)
+    try {
+      await petitionApi.delete(petition.id)
+      navigate('/profile')
+    } catch (error) {
+      console.error('Error deleting petition:', error)
+      setSubmitError('Failed to delete petition. Please try again.')
+    } finally {
+      setIsDeleting(false)
+      setShowDeleteModal(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -698,16 +735,28 @@ export default function EditPetition() {
                 Cancel
               </Button>
               <div className="flex gap-3">
+                {petition?.published_at && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleUnpublish}
+                    className="flex items-center gap-2 text-orange-600 border-orange-300 hover:bg-orange-50"
+                    disabled={isSubmitting || isUnpublishing}
+                  >
+                    {isUnpublishing ? 'Unpublishing...' : 'Unpublish'}
+                  </Button>
+                )}
                 <Button
                   type="button"
                   variant="outline"
+                  onClick={() => setShowDeleteModal(true)}
                   className="flex items-center gap-2 text-red-600 border-red-300 hover:bg-red-50"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isDeleting}
                 >
                   <Trash2 className="w-4 h-4" />
                   Delete Petition
                 </Button>
-                <Button type="submit" disabled={isSubmitting} className="min-w-[120px] flex items-center gap-2">
+                <Button type="submit" disabled={isSubmitting || isDeleting || isUnpublishing} className="min-w-[120px] flex items-center gap-2">
                   <Save className="w-4 h-4" />
                   {isSubmitting ? 'Saving...' : 'Save Changes'}
                 </Button>
@@ -716,6 +765,50 @@ export default function EditPetition() {
           </form>
         </Card>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Delete Petition
+            </h3>
+            <p className="text-gray-800 mb-4">
+              This action cannot be undone. This will permanently delete the petition and all associated signatures.
+            </p>
+            <p className="text-sm text-gray-800 mb-4">
+              To confirm deletion, please type the petition title: <strong>"{petition?.title}"</strong>
+            </p>
+            <Input
+              type="text"
+              value={deleteConfirmTitle}
+              onChange={(e) => setDeleteConfirmTitle(e.target.value)}
+              placeholder="Type petition title here"
+              className="mb-4"
+            />
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowDeleteModal(false)
+                  setDeleteConfirmTitle('')
+                }}
+                disabled={isDeleting}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteConfirm}
+                disabled={isDeleting || deleteConfirmTitle !== petition?.title}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete Petition'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

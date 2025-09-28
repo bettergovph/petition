@@ -444,4 +444,24 @@ export class DatabaseService {
     await stmt.bind(petitionId, categoryId).run()
   }
 
+  async unpublishPetition(id: number): Promise<void> {
+    const stmt = this.db.prepare('UPDATE petitions SET published_at = NULL WHERE id = ?')
+    await stmt.bind(id).run()
+  }
+
+  async deletePetition(id: number): Promise<void> {
+    // Delete in order to respect foreign key constraints
+    // 1. Delete petition categories
+    const deleteCategoriesStmt = this.db.prepare('DELETE FROM petition_categories WHERE petition_id = ?')
+    await deleteCategoriesStmt.bind(id).run()
+    
+    // 2. Delete signatures
+    const deleteSignaturesStmt = this.db.prepare('DELETE FROM signatures WHERE petition_id = ?')
+    await deleteSignaturesStmt.bind(id).run()
+    
+    // 3. Delete the petition itself
+    const deletePetitionStmt = this.db.prepare('DELETE FROM petitions WHERE id = ?')
+    await deletePetitionStmt.bind(id).run()
+  }
+
 }

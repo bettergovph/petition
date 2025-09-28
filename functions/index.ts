@@ -11,7 +11,8 @@ import { onRequest as petitionsHandler } from './api/petitions'
 import { onRequest as petitionByIdHandler } from './api/petitions/[id]'
 import { onRequest as petitionBySlugHandler } from './api/petition/[slug]'
 import { onRequest as petitionSignaturesHandler } from './api/petitions/[id]/signatures'
-import { onRequest as petitionPublishHandler } from './api/petitions/[id]/publish'
+import { onRequest as petitionPublishHandler } from './api/petition/[id]/publish'
+import { onRequest as petitionUnpublishHandler } from './api/petition/[id]/unpublish'
 import { onRequest as signaturesHandler } from './api/signatures'
 import { onRequest as categoriesHandler } from './api/categories'
 import { onRequest as authHandler } from './auth/[...auth]'
@@ -105,9 +106,14 @@ export default {
         return await petitionBySlugHandler(createContext(request, env, params))
       }
 
-      if (path.match(/^\/api\/petitions\/\d+\/publish$/)) {
-        const params = parsePathParams(path, '/api/petitions/[id]/publish')
+      if (path.match(/^\/api\/petition\/\d+\/publish$/)) {
+        const params = parsePathParams(path, '/api/petition/[id]/publish')
         return await petitionPublishHandler(createContext(request, env, params))
+      }
+
+      if (path.match(/^\/api\/petition\/\d+\/unpublish$/)) {
+        const params = parsePathParams(path, '/api/petition/[id]/unpublish')
+        return await petitionUnpublishHandler(createContext(request, env, params))
       }
 
       if (path.match(/^\/api\/petitions\/\d+\/signatures$/)) {
