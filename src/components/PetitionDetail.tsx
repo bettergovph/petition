@@ -32,7 +32,7 @@ function PetitionDetailFallback() {
 
 function PetitionDetailContent() {
   const { slug } = useParams<{ slug: string }>()
-  const { hasSignedPetition, isAuthenticated, addSignedPetition, refreshSignatures } = useUserSignatures()
+  const { hasSignedPetition, isAuthenticated, addSignedPetition } = useUserSignatures()
 
   const [petition, setPetition] = useState<PetitionWithDetails | null>(null)
   const [signatures, setSignatures] = useState<Signature[]>([])
@@ -44,17 +44,19 @@ function PetitionDetailContent() {
   const [refreshing, setRefreshing] = useState(false)
   const [justUpdated, setJustUpdated] = useState(false)
 
-  const fetchPetition = useCallback(async () => {
+  const fetchPetition = useCallback(async (skipSignatures = false) => {
     try {
       const data = await petitionApi.getBySlug(slug!)
       setPetition(data)
 
-      // Fetch signatures once we have the petition data
-      try {
-        const signatures = await petitionApi.getSignatures(data.id, { limit: 20 })
-        setSignatures(signatures)
-      } catch (sigErr) {
-        console.error('Failed to fetch signatures:', sigErr)
+      // Only fetch signatures if not skipping (to avoid duplicate calls)
+      if (!skipSignatures) {
+        try {
+          const signatures = await petitionApi.getSignatures(data.id, { limit: 20 })
+          setSignatures(signatures)
+        } catch (sigErr) {
+          console.error('Failed to fetch signatures:', sigErr)
+        }
       }
     } catch (err) {
       console.error('Failed to fetch petition:', err)
@@ -89,51 +91,48 @@ function PetitionDetailContent() {
       // Add a small delay to ensure the server has processed the signature
       await new Promise(resolve => setTimeout(resolve, 500))
       
-      // Force a fresh fetch to get updated data with cache busting
+      // Fetch both petition and signatures data in parallel with cache busting
       const timestamp = Date.now()
-      const cacheBustingUrl = `/api/petition/${slug}?_t=${timestamp}`
+      const [petitionResponse, signaturesResponse] = await Promise.all([
+        fetch(`/api/petition/${slug}?_t=${timestamp}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        }),
+        petition ? fetch(`/api/petitions/${petition.id}/signatures?limit=20&_t=${timestamp}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        }) : Promise.resolve(null)
+      ])
       
-      const response = await fetch(cacheBustingUrl, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache'
-        }
-      })
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+      // Process petition data
+      if (petitionResponse.ok) {
+        const data = await petitionResponse.json() as PetitionWithDetails
+        setPetition(data)
+        console.log('✅ Petition data refreshed after signing - new count:', data.current_count)
       }
       
-      const data = await response.json() as PetitionWithDetails
-      setPetition(data)
-
-      // Fetch updated signatures with cache busting
-      const signaturesResponse = await fetch(`/api/petitions/${data.id}/signatures?limit=20&_t=${timestamp}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache'
-        }
-      })
-      
-      if (signaturesResponse.ok) {
+      // Process signatures data
+      if (signaturesResponse && signaturesResponse.ok) {
         const signatures = await signaturesResponse.json() as Signature[]
         setSignatures(signatures)
       }
       
-      // Refresh user signatures to ensure consistency
-      refreshSignatures()
-      
-      console.log('✅ Petition data refreshed after signing - new count:', data.current_count)
+      // Note: We don't call refreshSignatures() here since we already optimistically updated
+      // and the user signatures will be refreshed naturally on the next component that needs them
       
       // Show success indicator briefly
       setJustUpdated(true)
       setTimeout(() => setJustUpdated(false), 3000)
     } catch (err) {
       console.error('Failed to refresh petition after signing:', err)
-      // Fallback to the original fetch method
-      await fetchPetition()
+      // Fallback: fetch petition without signatures to avoid duplicate signature calls
+      await fetchPetition(true)
     } finally {
       setRefreshing(false)
     }
@@ -215,7 +214,7 @@ function PetitionDetailContent() {
       <link rel="canonical" href={`https://petition.ph/petition/${petition.slug}`} />
 
       <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
           <nav className="mb-6">
             <div className="flex items-center space-x-2 text-sm text-gray-600">
