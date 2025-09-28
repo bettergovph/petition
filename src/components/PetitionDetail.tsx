@@ -32,7 +32,7 @@ function PetitionDetailFallback() {
 
 function PetitionDetailContent() {
   const { slug } = useParams<{ slug: string }>()
-  const { hasSignedPetition, isAuthenticated } = useUserSignatures()
+  const { hasSignedPetition, isAuthenticated, addSignedPetition, refreshSignatures } = useUserSignatures()
 
   const [petition, setPetition] = useState<PetitionWithDetails | null>(null)
   const [signatures, setSignatures] = useState<Signature[]>([])
@@ -81,6 +81,11 @@ function PetitionDetailContent() {
     setRefreshing(true)
     
     try {
+      // Optimistically update the signed petitions list immediately
+      if (petition) {
+        addSignedPetition(petition.id)
+      }
+      
       // Add a small delay to ensure the server has processed the signature
       await new Promise(resolve => setTimeout(resolve, 500))
       
@@ -116,6 +121,9 @@ function PetitionDetailContent() {
         const signatures = await signaturesResponse.json() as Signature[]
         setSignatures(signatures)
       }
+      
+      // Refresh user signatures to ensure consistency
+      refreshSignatures()
       
       console.log('✅ Petition data refreshed after signing - new count:', data.current_count)
       
