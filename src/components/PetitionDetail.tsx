@@ -345,6 +345,26 @@ function PetitionDetailContent() {
                         color: 'inherit'
                       }}
                       className="!bg-transparent"
+                      rehypePlugins={[
+                        [
+                          // Add target="_blank" and rel="noopener noreferrer" to external links
+                          () => (tree: any) => {
+                            const visit = (node: any) => {
+                              if (node.type === 'element' && node.tagName === 'a') {
+                                const href = node.properties?.href
+                                if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+                                  node.properties.target = '_blank'
+                                  node.properties.rel = 'noopener noreferrer'
+                                }
+                              }
+                              if (node.children) {
+                                node.children.forEach(visit)
+                              }
+                            }
+                            visit(tree)
+                          }
+                        ]
+                      ]}
                     />
                   </div>
                 </div>
