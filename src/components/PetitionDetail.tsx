@@ -248,10 +248,7 @@ function PetitionDetailContent() {
 
   // Clean description for meta tags (remove markdown and limit length)
   const cleanDescription = petition.description
-    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1') // Replace ![alt](url) with just alt text
-    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1') // Replace [text](url) with just text
-    .replace(/[#*`_~[\]()]/g, '') // Remove remaining markdown syntax
-    .replace(/\s+/g, ' ') // Replace multiple whitespace with single space
+    .replace(/[#*`_~\[\]()]/g, '') // Remove markdown syntax
     .replace(/\n/g, ' ') // Replace newlines with spaces
     .trim()
     .slice(0, 160)
@@ -419,21 +416,20 @@ function PetitionDetailContent() {
                       rehypePlugins={[
                         [
                           // Add target="_blank" and rel="noopener noreferrer" to external links
-                          () => (tree: unknown) => {
-                            const visit = (node: Record<string, unknown>) => {
+                          () => (tree: any) => {
+                            const visit = (node: any) => {
                               if (node.type === 'element' && node.tagName === 'a') {
-                                const properties = node.properties as Record<string, unknown>
-                                const href = properties?.href as string
+                                const href = node.properties?.href
                                 if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
-                                  properties.target = '_blank'
-                                  properties.rel = 'noopener noreferrer'
+                                  node.properties.target = '_blank'
+                                  node.properties.rel = 'noopener noreferrer'
                                 }
                               }
-                              if (node.children && Array.isArray(node.children)) {
+                              if (node.children) {
                                 node.children.forEach(visit)
                               }
                             }
-                            visit(tree as Record<string, unknown>)
+                            visit(tree)
                           }
                         ]
                       ]}
