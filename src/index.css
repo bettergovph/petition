@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '@uiw/react-md-editor/markdown-editor.css';
 
 @theme {
   /* Fonts */
@@ -250,4 +251,78 @@
 
 @utility animate-slide-in {
   animation: slideIn 0.5s ease-out;
+}
+
+/* Markdown content styling */
+.w-md-editor-text-pre .w-md-editor-text-input,
+.w-md-editor-text-pre .w-md-editor-text-textarea,
+.w-md-editor-text-pre .w-md-editor-text {
+  color: inherit !important;
+  background-color: transparent !important;
+}
+
+.wmde-markdown {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+.wmde-markdown h1,
+.wmde-markdown h2,
+.wmde-markdown h3,
+.wmde-markdown h4,
+.wmde-markdown h5,
+.wmde-markdown h6 {
+  color: #1f2937 !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.wmde-markdown p {
+  color: #374151 !important;
+  line-height: 1.75 !important;
+  margin-bottom: 1rem !important;
+}
+
+.wmde-markdown ul,
+.wmde-markdown ol {
+  margin-bottom: 1rem !important;
+  padding-left: 1.5rem !important;
+}
+
+.wmde-markdown li {
+  color: #374151 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.wmde-markdown blockquote {
+  border-left: 4px solid #e5e7eb !important;
+  padding-left: 1rem !important;
+  margin: 1rem 0 !important;
+  color: #6b7280 !important;
+  font-style: italic !important;
+}
+
+.wmde-markdown code {
+  background-color: #f3f4f6 !important;
+  color: #1f2937 !important;
+  padding: 0.125rem 0.25rem !important;
+  border-radius: 0.25rem !important;
+  font-size: 0.875rem !important;
+}
+
+.wmde-markdown pre {
+  background-color: #f3f4f6 !important;
+  border-radius: 0.5rem !important;
+  padding: 1rem !important;
+  margin: 1rem 0 !important;
+  overflow-x: auto !important;
+}
+
+.wmde-markdown a {
+  color: #0066eb !important;
+  text-decoration: underline !important;
+}
+
+.wmde-markdown a:hover {
+  color: #0052bc !important;
 }

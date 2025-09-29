@@ -10,6 +10,7 @@ import ReportModal from './ReportModal'
 import SignInModal from './auth/SignInModal'
 import { Share, Copy, Check, Flag } from 'lucide-react'
 import { SiFacebook, SiX, SiWhatsapp, SiTelegram } from '@icons-pack/react-simple-icons'
+import MDEditor from '@uiw/react-md-editor'
 
 // Loading fallback component for Suspense
 function PetitionDetailFallback() {
@@ -336,15 +337,15 @@ function PetitionDetailContent() {
                 {/* Description */}
                 <div className="mb-8">
                   <h2 className="text-xl font-semibold mb-4">Why this petition matters</h2>
-                  <div className="prose max-w-none">
-                    {petition.description.split('\n').map(
-                      (paragraph, index) =>
-                        paragraph.trim() && (
-                          <p key={index} className="mb-4 text-gray-700 leading-relaxed">
-                            {paragraph}
-                          </p>
-                        )
-                    )}
+                  <div className="prose prose-gray max-w-none">
+                    <MDEditor.Markdown
+                      source={petition.description}
+                      style={{ 
+                        backgroundColor: 'transparent',
+                        color: 'inherit'
+                      }}
+                      className="!bg-transparent"
+                    />
                   </div>
                 </div>
               </div>
