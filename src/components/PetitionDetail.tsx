@@ -248,7 +248,10 @@ function PetitionDetailContent() {
 
   // Clean description for meta tags (remove markdown and limit length)
   const cleanDescription = petition.description
-    .replace(/[#*`_~\[\]()]/g, '') // Remove markdown syntax
+    .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1') // Replace ![alt](url) with just alt text
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1') // Replace [text](url) with just text
+    .replace(/[#*`_~[\]()]/g, '') // Remove remaining markdown syntax
+    .replace(/\s+/g, ' ') // Replace multiple whitespace with single space
     .replace(/\n/g, ' ') // Replace newlines with spaces
     .trim()
     .slice(0, 160)
@@ -416,20 +419,21 @@ function PetitionDetailContent() {
                       rehypePlugins={[
                         [
                           // Add target="_blank" and rel="noopener noreferrer" to external links
-                          () => (tree: any) => {
-                            const visit = (node: any) => {
+                          () => (tree: unknown) => {
+                            const visit = (node: Record<string, unknown>) => {
                               if (node.type === 'element' && node.tagName === 'a') {
-                                const href = node.properties?.href
+                                const properties = node.properties as Record<string, unknown>
+                                const href = properties?.href as string
                                 if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
-                                  node.properties.target = '_blank'
-                                  node.properties.rel = 'noopener noreferrer'
+                                  properties.target = '_blank'
+                                  properties.rel = 'noopener noreferrer'
                                 }
                               }
-                              if (node.children) {
+                              if (node.children && Array.isArray(node.children)) {
                                 node.children.forEach(visit)
                               }
                             }
-                            visit(tree)
+                            visit(tree as Record<string, unknown>)
                           }
                         ]
                       ]}
@@ -510,9 +514,9 @@ function PetitionDetailContent() {
                     </span>
                     <span>{petition.target_count.toLocaleString()} goal</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+                  <div className="w-full bg-gray-200 h-3 mb-2">
                     <div
-                      className="bg-green-600 h-3 rounded-full transition-all duration-300"
+                      className="bg-green-600 h-3 transition-all duration-300"
                       style={{ width: `${Math.min(progressPercentage, 100)}%` }}
                     />
                   </div>
