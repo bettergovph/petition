@@ -49,7 +49,7 @@ export default function PetitionCard({
               {primaryCategory}
             </span>
             {showTypeBadge && (
-              <span className="inline-block border border-gray-400 text-gray-900 text-sm px-3 py-1 rounded">
+              <span className="inline-block border border-gray-400 text-gray-700 text-sm px-3 py-1 rounded">
                 {petition.type}
               </span>
             )}
