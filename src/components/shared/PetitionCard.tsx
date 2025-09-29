@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useUserSignatures } from '@/hooks/useUserSignatures'
 import type { PetitionWithDetails } from '@/types/api'
@@ -32,7 +31,7 @@ export default function PetitionCard({
   const hasSigned = isAuthenticated && hasSignedPetition(petition.id)
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col h-full relative">
+    <Card className="overflow-hidden border border-gray-300 flex flex-col h-full relative bg-white">
       {/* Signed Ribbon */}
       {hasSigned && (
         <div className="absolute top-0 right-0 z-10">
@@ -42,52 +41,74 @@ export default function PetitionCard({
         </div>
       )}
       
-      <CardHeader className="pb-3">
-        <div className="flex justify-between items-start mb-2">
-          <div className="flex gap-1 flex-wrap">
-            <Badge variant="secondary">{primaryCategory}</Badge>
+      <CardHeader className="p-6 pb-4">
+        {/* Category and location badges */}
+        <div className="mb-3 flex justify-between items-center">
+          <div className="flex gap-2">
+            <span className="inline-block bg-blue-100 text-blue-700 text-xs font-medium px-2 py-1 rounded">
+              {primaryCategory}
+            </span>
             {showTypeBadge && (
-              <Badge variant={petition.type === 'local' ? 'outline' : 'default'}>
+              <span className="inline-block border border-gray-400 text-gray-700 text-sm px-3 py-1 rounded">
                 {petition.type}
-              </Badge>
+              </span>
             )}
           </div>
+          {petition.type === 'local' && petition.location && (
+            <span className="inline-flex items-center gap-1 text-gray-700 text-sm">
+              📍 {petition.location}
+            </span>
+          )}
         </div>
-        <CardTitle className="text-xl font-semibold line-clamp-2 font-[Figtree]">
-          <Link to={`/petition/${petition.slug}`} className="hover:text-blue-600 transition-colors">
+
+        {/* Petition title */}
+        <CardTitle className="text-2xl font-bold leading-tight mb-4 text-gray-900">
+          <Link to={`/petition/${petition.slug}`} className="hover:text-blue-600 transition-colors no-underline">
             {petition.title}
           </Link>
-
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col flex-grow">
-        <p className="text-gray-800 line-clamp-3">{petition.description}
-        </p>
-            <p className="text-sm text-gray-800 my-3">{daysLeft} days left</p>
 
-        {petition.type === 'local' && petition.location && (
-          <p className="text-sm text-blue-600 mb-2">📍 {petition.location}</p>
-        )}
+      <CardContent className="flex flex-col flex-grow px-6 pb-6">
+        {/* Petition description */}
+        <div className="h-20 mb-6">
+          <p className="text-base leading-relaxed text-gray-800 line-clamp-3">
+            {petition.description}
+          </p>
+        </div>
 
         {/* Bottom section: progress + CTA stays aligned across cards */}
         <div className="mt-auto space-y-4">
-          <div className="">
-            <div className="flex justify-between text-sm text-gray-800 mb-1">
-              <span>{petition.current_count.toLocaleString()} signatures</span>
-              <span>{petition.target_count.toLocaleString()} target</span>
+          <div className="border-t border-gray-200 pt-4">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-lg font-bold text-gray-900">
+                {petition.current_count.toLocaleString()}
+              </span>
+              <span className="text-sm text-gray-600">
+                of {petition.target_count.toLocaleString()} signatures
+              </span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            
+            <div className="w-full bg-gray-200 h-3 mb-2">
               <div
-                className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                className="bg-green-600 h-3 transition-all duration-300"
                 style={{ width: `${Math.min(progressPercentage, 100)}%` }}
               />
             </div>
-            <div className="text-sm text-gray-500 mt-1">{progressPercentage}% complete</div>
+            
+            <div className="flex justify-between items-center">
+              <p className="text-sm text-gray-600">
+                {progressPercentage}% complete
+              </p>
+              <p className="text-sm text-gray-600">
+                <strong>{daysLeft}</strong> days left
+              </p>
+            </div>
           </div>
 
           <Link to={`/petition/${petition.slug}`}>
-            <Button className="w-full text-white">
-              {hasSigned ? 'View Petition' : 'Sign Petition'}
+            <Button className="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 px-6 text-lg border-0 rounded">
+              {hasSigned ? 'View petition' : 'Sign this petition'}
             </Button>
           </Link>
         </div>
