@@ -9,7 +9,7 @@ import { petitionApi, categoryApi, ApiError } from '../services/api'
 import type { Category, PetitionWithDetails } from '../types/api'
 import MDEditor, { commands } from '@uiw/react-md-editor'
 import { useAuth } from '../hooks/useAuth'
-import { ArrowLeft, Save, Trash2 } from 'lucide-react'
+import { ArrowLeft, Save, Trash2, AlertCircle, Eye } from 'lucide-react'
 
 interface EditPetitionFormData {
   title: string
@@ -55,6 +55,7 @@ export default function EditPetition() {
   const [deleteConfirmTitle, setDeleteConfirmTitle] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
   const [isUnpublishing, setIsUnpublishing] = useState(false)
+  const [isPublishing, setIsPublishing] = useState(false)
 
   // Load petition and categories on component mount
   useEffect(() => {
@@ -193,6 +194,22 @@ export default function EditPetition() {
       : [...formData.categories, categoryId]
 
     handleInputChange('categories', updatedCategories.map(String))
+  }
+
+  const handlePublish = async () => {
+    if (!petition) return
+
+    setIsPublishing(true)
+    try {
+      await petitionApi.publish(petition.id)
+      // Reload petition data to get updated published_at
+      await loadPetitionData()
+    } catch (error) {
+      console.error('Error publishing petition:', error)
+      setSubmitError('Failed to publish petition. Please try again.')
+    } finally {
+      setIsPublishing(false)
+    }
   }
 
   const handleUnpublish = async () => {
@@ -353,6 +370,45 @@ export default function EditPetition() {
             Update your petition details and settings
           </p>
         </div>
+
+        {/* Publication Status Banner */}
+        {!petition?.published_at && (
+          <Card className="mb-6 border-amber-200 bg-amber-50">
+            <div className="p-4">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="text-sm font-semibold text-amber-800 mb-1">
+                    Petition Not Published
+                  </h3>
+                  <p className="text-sm text-amber-700 mb-3">
+                    Your petition is currently in draft mode and not visible to the public. 
+                    After making your changes, remember to publish it so people can find and sign it.
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={handlePublish}
+                      disabled={isPublishing || isSubmitting}
+                      size="sm"
+                      className="bg-amber-600 hover:bg-amber-700 text-white"
+                    >
+                      <Eye className="w-4 h-4 mr-1" />
+                      {isPublishing ? 'Publishing...' : 'Publish Now'}
+                    </Button>
+                    <Button
+                      onClick={() => navigate(`/petition/${petition.slug}`)}
+                      variant="outline"
+                      size="sm"
+                      className="border-amber-300 text-amber-700 hover:bg-amber-100"
+                    >
+                      Preview Draft
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
 
         <Card className="p-8">
           {submitError && (
@@ -735,7 +791,17 @@ export default function EditPetition() {
                 Cancel
               </Button>
               <div className="flex gap-3">
-                {petition?.published_at && (
+                {!petition?.published_at ? (
+                  <Button
+                    type="button"
+                    onClick={handlePublish}
+                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+                    disabled={isSubmitting || isPublishing}
+                  >
+                    <Eye className="w-4 h-4" />
+                    {isPublishing ? 'Publishing...' : 'Publish Petition'}
+                  </Button>
+                ) : (
                   <Button
                     type="button"
                     variant="outline"
@@ -756,7 +822,7 @@ export default function EditPetition() {
                   <Trash2 className="w-4 h-4" />
                   Delete Petition
                 </Button>
-                <Button type="submit" disabled={isSubmitting || isDeleting || isUnpublishing} className="min-w-[120px] flex items-center gap-2">
+                <Button type="submit" disabled={isSubmitting || isDeleting || isUnpublishing || isPublishing} className="min-w-[120px] flex items-center gap-2">
                   <Save className="w-4 h-4" />
                   {isSubmitting ? 'Saving...' : 'Save Changes'}
                 </Button>
