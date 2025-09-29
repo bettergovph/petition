@@ -14,7 +14,7 @@ export default function Hero() {
             <Link to="/create">
               <Button
                 size="lg"
-                className="bg-white border border-white text-primary-600 hover:bg-gray-100 px-12 py-6 text-xl font-semibold rounded-sm shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105"
+                className="bg-white border w-full border-white text-primary-600 hover:bg-gray-100 px-12 py-6 text-xl font-semibold rounded-sm shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105"
               >
                 Start a Petition
               </Button>
@@ -23,7 +23,7 @@ export default function Hero() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white text-white hover:bg-white hover:text-primary-600 px-12 py-6 text-xl font-semibold rounded-sm shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105"
+                className="w-full border-white text-white hover:bg-white hover:text-primary-600 px-12 py-6 text-xl font-semibold rounded-sm shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:scale-105"
               >
                 Browse Petitions
               </Button>

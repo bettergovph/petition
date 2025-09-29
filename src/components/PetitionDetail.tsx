@@ -7,6 +7,7 @@ import { useUserSignatures } from '@/hooks/useUserSignatures'
 import type { PetitionWithDetails, Signature } from '@/types/api'
 import SignPetitionModal from './SignPetitionModal'
 import ReportModal from './ReportModal'
+import SignInModal from './auth/SignInModal'
 import { Share, Copy, Check, Flag } from 'lucide-react'
 import { SiFacebook, SiX, SiWhatsapp, SiTelegram } from '@icons-pack/react-simple-icons'
 
@@ -46,6 +47,7 @@ function PetitionDetailContent() {
   const [justUpdated, setJustUpdated] = useState(false)
   const [showReportModal, setShowReportModal] = useState(false)
   const [reportingSignature, setReportingSignature] = useState<Signature | null>(null)
+  const [showSignInModal, setShowSignInModal] = useState(false)
 
   const fetchPetition = useCallback(async (skipSignatures = false) => {
     try {
@@ -211,6 +213,16 @@ function PetitionDetailContent() {
     }
   }
 
+  const handleReportClick = (signature: Signature) => {
+    if (!isAuthenticated) {
+      setShowSignInModal(true)
+      return
+    }
+    
+    setReportingSignature(signature)
+    setShowReportModal(true)
+  }
+
   if (loading) {
     return <PetitionDetailFallback />
   }
@@ -256,7 +268,7 @@ function PetitionDetailContent() {
       <link rel="canonical" href={`https://petition.ph/petition/${petition.slug}`} />
 
       <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
           <nav className="mb-6">
             <div className="flex items-center space-x-2 text-sm text-gray-800">
@@ -275,7 +287,7 @@ function PetitionDetailContent() {
           <div className="grid gap-8 lg:grid-cols-3">
             {/* Main Content */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-sm shadow-sm p-6 mb-6">
+              <div className="bg-white rounded-sm shadow-sm p-3 md:p-6 mb-6">
                 {/* Header */}
                 <div className="mb-6">
                   <div className="flex flex-wrap gap-2 mb-4">
@@ -371,18 +383,13 @@ function PetitionDetailContent() {
                             <span className="text-sm text-gray-500">
                               {new Date(signature.created_at).toLocaleDateString()}
                             </span>
-                            {isAuthenticated && (
-                              <button
-                                onClick={() => {
-                                  setReportingSignature(signature)
-                                  setShowReportModal(true)
-                                }}
-                                className="text-gray-800 hover:text-red-500 transition-colors p-1 rounded hover:bg-red-50"
-                                title="Report this signature"
-                              >
-                                <Flag className="h-3 w-3" />
-                              </button>
-                            )}
+                            <button
+                              onClick={() => handleReportClick(signature)}
+                              className="text-gray-800 hover:text-red-500 transition-colors p-1 rounded hover:bg-red-50"
+                              title={isAuthenticated ? "Report this signature" : "Sign in to report this signature"}
+                            >
+                              <Flag className="h-3 w-3" />
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -554,17 +561,21 @@ function PetitionDetailContent() {
                     </Button>
 
                     {/* Report Button */}
-                    {isAuthenticated && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowReportModal(true)}
-                        className="w-full flex items-center justify-center gap-2 h-10 rounded-xl border-2 transition-all duration-200 font-medium text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 mt-3"
-                      >
-                        <Flag className="h-4 w-4" />
-                        <span>Report Petition</span>
-                      </Button>
-                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (!isAuthenticated) {
+                          setShowSignInModal(true)
+                          return
+                        }
+                        setShowReportModal(true)
+                      }}
+                      className="w-full flex items-center justify-center gap-2 h-10 rounded-xl border-2 transition-all duration-200 font-medium text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 mt-3"
+                    >
+                      <Flag className="h-4 w-4" />
+                      <span>{isAuthenticated ? 'Report Petition' : 'Sign in to Report'}</span>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -590,6 +601,11 @@ function PetitionDetailContent() {
               (reportingSignature.comment ? `"${reportingSignature.comment}"` : 'Anonymous signature') : 
               petition.title
             }
+          />
+
+          <SignInModal
+            isOpen={showSignInModal}
+            onClose={() => setShowSignInModal(false)}
           />
         </div>
       </div>
