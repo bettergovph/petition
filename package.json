@@ -24,6 +24,7 @@
     "@auth/core": "^0.34.2",
     "@auth/d1-adapter": "^1.4.2",
     "@cloudflare/vite-plugin": "^1.13.5",
+    "@dr.pogodin/react-helmet": "^3.0.4",
     "@icons-pack/react-simple-icons": "^13.7.0",
     "@radix-ui/react-slot": "^1.2.3",
     "@tailwindcss/vite": "^4.1.13",

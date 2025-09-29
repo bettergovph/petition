@@ -11,6 +11,7 @@ import SignInModal from './auth/SignInModal'
 import { Share, Copy, Check, Flag } from 'lucide-react'
 import { SiFacebook, SiX, SiWhatsapp, SiTelegram } from '@icons-pack/react-simple-icons'
 import MDEditor from '@uiw/react-md-editor'
+import { Helmet } from '@dr.pogodin/react-helmet'
 
 // Loading fallback component for Suspense
 function PetitionDetailFallback() {
@@ -245,28 +246,95 @@ function PetitionDetailContent() {
   const progressPercentage = Math.round((petition.current_count / petition.target_count) * 100)
   const daysLeft = calculateDaysLeft(petition.created_at)
 
+  // Clean description for meta tags (remove markdown and limit length)
+  const cleanDescription = petition.description
+    .replace(/[#*`_~\[\]()]/g, '') // Remove markdown syntax
+    .replace(/\n/g, ' ') // Replace newlines with spaces
+    .trim()
+    .slice(0, 160)
+
+  const pageUrl = `https://petition.ph/petition/${petition.slug}`
+  const imageUrl = petition.image_url || 'https://petition.ph/bettergov-og.jpg'
+  const pageTitle = `${petition.title} | Petitions by BetterGov.ph`
+
   return (
     <>
-      <title>{`${petition.title} | Petitions by BetterGov.ph`}</title>
-      <meta name="description" content={petition.description.slice(0, 160)} />
-      <meta name="keywords" content={petition.categories.map(cat => cat.name).join(', ')} />
-      <meta name="author" content={petition.creator.name} />
-      <meta property="og:title" content={`${petition.title} | Petitions by BetterGov.ph`} />
-      <meta property="og:description" content={petition.description.slice(0, 160)} />
-      <meta property="og:type" content="article" />
-      <meta property="og:url" content={`https://petition.ph/petition/${petition.slug}`} />
-      <meta
-        property="og:image"
-        content={petition.image_url || 'https://petition.ph/bettergov-og.jpg'}
-      />
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={petition.title} />
-      <meta name="twitter:description" content={petition.description.slice(0, 160)} />
-      <meta
-        name="twitter:image"
-        content={petition.image_url || 'https://petition.ph/bettergov-og.jpg'}
-      />
-      <link rel="canonical" href={`https://petition.ph/petition/${petition.slug}`} />
+      <Helmet>
+        {/* Basic Meta Tags */}
+        <title>{pageTitle}</title>
+        <meta name="description" content={cleanDescription} />
+        <meta name="keywords" content={petition.categories.map(cat => cat.name).join(', ')} />
+        <meta name="author" content={petition.creator.name || 'BetterGov.ph'} />
+        <link rel="canonical" href={pageUrl} />
+
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={cleanDescription} />
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:image" content={imageUrl} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:site_name" content="BetterGov.ph" />
+        <meta property="article:author" content={petition.creator.name || 'BetterGov.ph'} />
+        <meta property="article:published_time" content={petition.created_at} />
+        <meta property="article:section" content="Petitions" />
+        <meta property="article:tag" content={petition.categories.map(cat => cat.name).join(', ')} />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={petition.title} />
+        <meta name="twitter:description" content={cleanDescription} />
+        <meta name="twitter:image" content={imageUrl} />
+        <meta name="twitter:site" content="@BetterGovPH" />
+        <meta name="twitter:creator" content="@BetterGovPH" />
+
+        {/* Additional SEO Meta Tags */}
+        <meta name="robots" content="index, follow" />
+        <meta name="language" content="en-PH" />
+        <meta name="geo.region" content="PH" />
+        <meta name="geo.country" content="Philippines" />
+        {petition.type === 'local' && petition.location && (
+          <meta name="geo.placename" content={petition.location} />
+        )}
+        
+        {/* Schema.org structured data */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": petition.title,
+            "description": cleanDescription,
+            "image": imageUrl,
+            "author": {
+              "@type": "Person",
+              "name": petition.creator.name || "BetterGov.ph"
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "BetterGov.ph",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://petition.ph/bettergov-og.jpg"
+              }
+            },
+            "datePublished": petition.created_at,
+            "dateModified": petition.updated_at || petition.created_at,
+            "mainEntityOfPage": {
+              "@type": "WebPage",
+              "@id": pageUrl
+            },
+            "keywords": petition.categories.map(cat => cat.name).join(', '),
+            "articleSection": "Petitions",
+            "inLanguage": "en-PH",
+            "isPartOf": {
+              "@type": "WebSite",
+              "@id": "https://petition.ph",
+              "name": "BetterGov.ph"
+            }
+          })}
+        </script>
+      </Helmet>
 
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-6xl mx-auto px-2 sm:px-6 lg:px-8">

@@ -17,12 +17,14 @@ import ScrollToTop from './components/ScrollToTop'
 import { AuthProvider } from './hooks/useAuth'
 import { ModalProvider } from './contexts/ModalContext'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { HelmetProvider } from '@dr.pogodin/react-helmet'
 import './utils/cache-debug' // Initialize cache debugging in development
 
 function App() {
   return (
     <AuthProvider>
       <ModalProvider>
+        <HelmetProvider>
         <Router>
         <ScrollToTop />
         <div className="min-h-screen bg-gray-50">
@@ -48,6 +50,7 @@ function App() {
           <Footer />
         </div>
         </Router>
+        </HelmetProvider>
       </ModalProvider>
     </AuthProvider>
   )
