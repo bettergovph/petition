@@ -45,6 +45,7 @@ function PetitionDetailContent() {
   const [refreshing, setRefreshing] = useState(false)
   const [justUpdated, setJustUpdated] = useState(false)
   const [showReportModal, setShowReportModal] = useState(false)
+  const [reportingSignature, setReportingSignature] = useState<Signature | null>(null)
 
   const fetchPetition = useCallback(async (skipSignatures = false) => {
     try {
@@ -186,6 +187,26 @@ function PetitionDetailContent() {
       console.log('Report submitted successfully')
     } catch (error) {
       console.error('Failed to submit report:', error)
+      throw error // Re-throw to let the modal handle the error
+    }
+  }
+
+  const handleReportSignature = async (reason: string, description?: string) => {
+    if (!reportingSignature) return
+
+    try {
+      await reportApi.create({
+        reported_item_type: 'signature',
+        reported_item_id: reportingSignature.id,
+        report_reason: reason,
+        report_description: description,
+      })
+      
+      // Show success message (you could add a toast notification here)
+      console.log('Signature report submitted successfully')
+      setReportingSignature(null)
+    } catch (error) {
+      console.error('Failed to submit signature report:', error)
       throw error // Re-throw to let the modal handle the error
     }
   }
@@ -338,7 +359,7 @@ function PetitionDetailContent() {
                     {signatures.map(signature => (
                       <div key={signature.id} className="border-b pb-4 last:border-b-0">
                         <div className="flex justify-between items-start">
-                          <div>
+                          <div className="flex-1">
                             <p className="font-medium text-gray-900">
                               {signature.anonymous ? 'Anonymous' : 'Supporter'}
                             </p>
@@ -346,9 +367,23 @@ function PetitionDetailContent() {
                               <p className="text-gray-700 mt-1 italic">"{signature.comment}"</p>
                             )}
                           </div>
-                          <span className="text-sm text-gray-500">
-                            {new Date(signature.created_at).toLocaleDateString()}
-                          </span>
+                          <div className="flex items-center gap-3 ml-4">
+                            <span className="text-sm text-gray-500">
+                              {new Date(signature.created_at).toLocaleDateString()}
+                            </span>
+                            {isAuthenticated && (
+                              <button
+                                onClick={() => {
+                                  setReportingSignature(signature)
+                                  setShowReportModal(true)
+                                }}
+                                className="text-gray-800 hover:text-red-500 transition-colors p-1 rounded hover:bg-red-50"
+                                title="Report this signature"
+                              >
+                                <Flag className="h-3 w-3" />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -545,10 +580,16 @@ function PetitionDetailContent() {
 
           <ReportModal
             isOpen={showReportModal}
-            onClose={() => setShowReportModal(false)}
-            onSubmit={handleReport}
-            itemType="petition"
-            itemTitle={petition.title}
+            onClose={() => {
+              setShowReportModal(false)
+              setReportingSignature(null)
+            }}
+            onSubmit={reportingSignature ? handleReportSignature : handleReport}
+            itemType={reportingSignature ? "signature" : "petition"}
+            itemTitle={reportingSignature ? 
+              (reportingSignature.comment ? `"${reportingSignature.comment}"` : 'Anonymous signature') : 
+              petition.title
+            }
           />
         </div>
       </div>
