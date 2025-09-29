@@ -45,11 +45,11 @@ export default function PetitionCard({
         {/* Category and location badges */}
         <div className="mb-3 flex justify-between items-center">
           <div className="flex gap-2">
-            <span className="inline-block bg-blue-100 text-blue-700 text-xs font-medium px-2 py-1 rounded">
+            <span className="inline-block bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1.5 rounded">
               {primaryCategory}
             </span>
             {showTypeBadge && (
-              <span className="inline-block border border-gray-400 text-gray-700 text-sm px-3 py-1 rounded">
+              <span className="inline-block border border-gray-400 text-gray-900 text-sm px-3 py-1 rounded">
                 {petition.type}
               </span>
             )}
