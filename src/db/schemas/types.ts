@@ -77,3 +77,32 @@ export interface PetitionWithDetails extends Petition {
   creator: Pick<User, 'name'>
   categories: Category[]
 }
+
+export interface UserReport {
+  id: number
+  reporter_user_id: string
+  reported_item_type: 'petition' | 'signature'
+  reported_item_id: number
+  report_reason: 'spam' | 'inappropriate_content' | 'harassment' | 'misinformation' | 'hate_speech' | 'violence' | 'copyright_violation' | 'other'
+  report_description?: string
+  status: 'pending' | 'reviewed' | 'resolved' | 'dismissed'
+  admin_notes?: string
+  reviewed_by?: string
+  reviewed_at?: string
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateUserReportInput {
+  reported_item_type: 'petition' | 'signature'
+  reported_item_id: number
+  report_reason: 'spam' | 'inappropriate_content' | 'harassment' | 'misinformation' | 'hate_speech' | 'violence' | 'copyright_violation' | 'other'
+  report_description?: string
+  reporter_user_id: string
+}
+
+export interface UpdateUserReportInput {
+  status?: 'pending' | 'reviewed' | 'resolved' | 'dismissed'
+  admin_notes?: string
+  reviewed_by?: string
+}

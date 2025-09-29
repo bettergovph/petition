@@ -274,4 +274,19 @@ export const categoryApi = {
   },
 }
 
+// Report API
+export const reportApi = {
+  async create(data: {
+    reported_item_type: 'petition' | 'signature'
+    reported_item_id: number
+    report_reason: string
+    report_description?: string
+  }): Promise<any> {
+    return apiRequest('/api/reports', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  },
+}
+
 export { ApiError }

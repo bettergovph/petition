@@ -14,6 +14,8 @@ import { onRequest as petitionPublishHandler } from './api/petition/[id]/publish
 import { onRequest as petitionUnpublishHandler } from './api/petition/[id]/unpublish'
 import { onRequest as signaturesHandler } from './api/signatures'
 import { onRequest as categoriesHandler } from './api/categories'
+import { onRequest as reportsHandler } from './api/reports'
+import { onRequest as adminReportsHandler } from './api/admin/reports'
 import { onRequest as authHandler } from './auth/[...auth]'
 import { getCorsHeaders, handleCORS, requireAuthentication, requirePetitionOwnership } from './_shared/utils'
 
@@ -189,6 +191,40 @@ export default {
 
       if (path === '/api/categories') {
         return await categoriesHandler(createContext(request, env))
+      }
+
+      if (path === '/api/reports') {
+        // Require authentication for reporting
+        const authResult = await requireAuthentication(request, env)
+        if (authResult instanceof Response) {
+          return authResult
+        }
+        const context = createContext(request, env)
+        context.data.user = authResult.user
+        return await reportsHandler(context)
+      }
+
+      if (path === '/api/admin/reports') {
+        // Require authentication for admin reports
+        const authResult = await requireAuthentication(request, env)
+        if (authResult instanceof Response) {
+          return authResult
+        }
+        const context = createContext(request, env)
+        context.data.user = authResult.user
+        return await adminReportsHandler(context)
+      }
+
+      if (path.match(/^\/api\/admin\/reports\/\d+$/)) {
+        const params = parsePathParams(path, '/api/admin/reports/[id]')
+        // Require authentication for admin report updates
+        const authResult = await requireAuthentication(request, env)
+        if (authResult instanceof Response) {
+          return authResult
+        }
+        const context = createContext(request, env, params)
+        context.data.user = authResult.user
+        return await adminReportsHandler(context)
       }
 
       // 404 for unmatched routes

@@ -11,6 +11,9 @@ import type {
   CreatePetitionInput,
   CreateSignatureInput,
   PetitionWithDetails,
+  UserReport,
+  CreateUserReportInput,
+  UpdateUserReportInput,
 } from './schemas/types'
 
 export class DatabaseService {
@@ -340,26 +343,25 @@ export class DatabaseService {
       VALUES (?, ?, ?, ?, ?)
       RETURNING *
     `)
-
-    const result = await stmt
-      .bind(
-        signatureData.petition_id,
-        signatureData.user_id,
-        signatureData.comment || null,
-        signatureData.anonymous || false,
-        signatureData.ip_address || null
-      )
-      .first<Signature>()
+    
+    const result = await stmt.bind(
+      signatureData.petition_id,
+      signatureData.user_id,
+      signatureData.comment || null,
+      signatureData.anonymous || false,
+      signatureData.ip_address || null
+    ).first<Signature>()
 
     if (!result) {
       throw new Error('Failed to create signature')
     }
 
-    // Note: The current_count is automatically updated by the database trigger
-    // defined in consolidated_setup.sql (update_petition_count_on_insert)
-    // No manual count update needed here
-
     return result
+  }
+
+  async getSignatureById(id: number): Promise<Signature | null> {
+    const stmt = this.db.prepare('SELECT * FROM signatures WHERE id = ?')
+    return await stmt.bind(id).first<Signature>()
   }
 
   async getUserSignatures(userId: string): Promise<Signature[]> {
@@ -429,6 +431,119 @@ export class DatabaseService {
     // 3. Delete the petition itself
     const deletePetitionStmt = this.db.prepare('DELETE FROM petitions WHERE id = ?')
     await deletePetitionStmt.bind(id).run()
+  }
+
+  // User Reports methods
+
+  async createUserReport(reportData: CreateUserReportInput): Promise<UserReport> {
+    const stmt = this.db.prepare(`
+      INSERT INTO user_reports (
+        reporter_user_id, 
+        reported_item_type, 
+        reported_item_id, 
+        report_reason, 
+        report_description
+      )
+      VALUES (?, ?, ?, ?, ?)
+    `)
+    
+    const result = await stmt.bind(
+      reportData.reporter_user_id,
+      reportData.reported_item_type,
+      reportData.reported_item_id,
+      reportData.report_reason,
+      reportData.report_description || null
+    ).run()
+
+    if (!result.success) {
+      throw new Error('Failed to create user report')
+    }
+
+    // Return the created report
+    const createdReport = await this.getUserReportById(result.meta.last_row_id as number)
+    if (!createdReport) {
+      throw new Error('Failed to retrieve created user report')
+    }
+
+    return createdReport
+  }
+
+  async getUserReportById(id: number): Promise<UserReport | null> {
+    const stmt = this.db.prepare('SELECT * FROM user_reports WHERE id = ?')
+    return await stmt.bind(id).first<UserReport>()
+  }
+
+  async getAllUserReports(
+    limit: number = 50, 
+    offset: number = 0, 
+    status?: 'pending' | 'reviewed' | 'resolved' | 'dismissed'
+  ): Promise<UserReport[]> {
+    let query = `
+      SELECT ur.*, 
+             u.name as reporter_name
+      FROM user_reports ur
+      LEFT JOIN users u ON ur.reporter_user_id = u.id
+    `
+    
+    const params: any[] = []
+    
+    if (status) {
+      query += ' WHERE ur.status = ?'
+      params.push(status)
+    }
+    
+    query += ' ORDER BY ur.created_at DESC LIMIT ? OFFSET ?'
+    params.push(limit, offset)
+    
+    const stmt = this.db.prepare(query)
+    const result = await stmt.bind(...params).all<UserReport>()
+    return result.results || []
+  }
+
+  async updateUserReport(id: number, updateData: UpdateUserReportInput): Promise<UserReport | null> {
+    const setParts: string[] = []
+    const params: any[] = []
+    
+    if (updateData.status !== undefined) {
+      setParts.push('status = ?')
+      params.push(updateData.status)
+    }
+    
+    if (updateData.admin_notes !== undefined) {
+      setParts.push('admin_notes = ?')
+      params.push(updateData.admin_notes)
+    }
+    
+    if (updateData.reviewed_by !== undefined) {
+      setParts.push('reviewed_by = ?, reviewed_at = CURRENT_TIMESTAMP')
+      params.push(updateData.reviewed_by)
+    }
+    
+    if (setParts.length === 0) {
+      throw new Error('No update data provided')
+    }
+    
+    const query = `UPDATE user_reports SET ${setParts.join(', ')} WHERE id = ?`
+    params.push(id)
+    
+    const stmt = this.db.prepare(query)
+    await stmt.bind(...params).run()
+    
+    return await this.getUserReportById(id)
+  }
+
+  async getUserReportsByItem(itemType: 'petition' | 'signature', itemId: number): Promise<UserReport[]> {
+    const stmt = this.db.prepare(`
+      SELECT ur.*, 
+             u.name as reporter_name
+      FROM user_reports ur
+      LEFT JOIN users u ON ur.reporter_user_id = u.id
+      WHERE ur.reported_item_type = ? AND ur.reported_item_id = ?
+      ORDER BY ur.created_at DESC
+    `)
+    
+    const result = await stmt.bind(itemType, itemId).all<UserReport>()
+    return result.results || []
   }
 
 }

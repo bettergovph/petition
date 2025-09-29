@@ -2,11 +2,12 @@ import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { petitionApi } from '@/services/api'
+import { petitionApi, reportApi } from '@/services/api'
 import { useUserSignatures } from '@/hooks/useUserSignatures'
 import type { PetitionWithDetails, Signature } from '@/types/api'
 import SignPetitionModal from './SignPetitionModal'
-import { Share, Copy, Check } from 'lucide-react'
+import ReportModal from './ReportModal'
+import { Share, Copy, Check, Flag } from 'lucide-react'
 import { SiFacebook, SiX, SiWhatsapp, SiTelegram } from '@icons-pack/react-simple-icons'
 
 // Loading fallback component for Suspense
@@ -43,6 +44,7 @@ function PetitionDetailContent() {
   const [sharedPlatform, setSharedPlatform] = useState<string | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const [justUpdated, setJustUpdated] = useState(false)
+  const [showReportModal, setShowReportModal] = useState(false)
 
   const fetchPetition = useCallback(async (skipSignatures = false) => {
     try {
@@ -166,6 +168,25 @@ function PetitionDetailContent() {
 
       // Open sharing window
       window.open(shareUrls[platform as keyof typeof shareUrls], '_blank', 'width=600,height=400')
+    }
+  }
+
+  const handleReport = async (reason: string, description?: string) => {
+    if (!petition) return
+
+    try {
+      await reportApi.create({
+        reported_item_type: 'petition',
+        reported_item_id: petition.id,
+        report_reason: reason,
+        report_description: description,
+      })
+      
+      // Show success message (you could add a toast notification here)
+      console.log('Report submitted successfully')
+    } catch (error) {
+      console.error('Failed to submit report:', error)
+      throw error // Re-throw to let the modal handle the error
     }
   }
 
@@ -496,6 +517,19 @@ function PetitionDetailContent() {
                         </>
                       )}
                     </Button>
+
+                    {/* Report Button */}
+                    {isAuthenticated && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowReportModal(true)}
+                        className="w-full flex items-center justify-center gap-2 h-10 rounded-xl border-2 transition-all duration-200 font-medium text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300 mt-3"
+                      >
+                        <Flag className="h-4 w-4" />
+                        <span>Report Petition</span>
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -507,6 +541,14 @@ function PetitionDetailContent() {
             isOpen={showSignForm}
             onClose={() => setShowSignForm(false)}
             onSuccess={handleSignSuccess}
+          />
+
+          <ReportModal
+            isOpen={showReportModal}
+            onClose={() => setShowReportModal(false)}
+            onSubmit={handleReport}
+            itemType="petition"
+            itemTitle={petition.title}
           />
         </div>
       </div>
