@@ -3,7 +3,8 @@ import {
   handleCORS, 
   createCachedResponse,
   createCachedErrorResponse,
-  getDbService 
+  getDbService,
+  type AuthenticatedUser
 } from '../../../_shared/utils'
 
 export const onRequest = async (context: EventContext<Env>): Promise<Response> => {
@@ -19,6 +20,12 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
     }
 
     if (context.request.method === 'GET') {
+      // Get authenticated user from context (set by router)
+      const authenticatedUser = context.data.user as AuthenticatedUser
+      if (!authenticatedUser) {
+        return createCachedErrorResponse('Authentication required', context.request, context.env, 401)
+      }
+      
       // Get all signatures for this user
       const signatures = await db.getUserSignatures(userId)
       

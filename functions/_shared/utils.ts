@@ -1,5 +1,7 @@
 import { DatabaseService } from '../../src/db/service'
 import type { Env, EventContext } from './types'
+import { Auth } from '@auth/core'
+import { createAuthConfig } from '../auth/config'
 
 // CORS configuration with environment-aware origin validation
 export function getCorsHeaders(request: Request, env: Env): Record<string, string> {
@@ -321,4 +323,147 @@ export async function getOrSetCache<T>(
   }
   
   return data
+}
+
+// Authentication utilities
+export interface AuthenticatedUser {
+  id: string
+  email: string
+  name: string
+  image?: string
+}
+
+export async function getAuthenticatedUser(
+  request: Request,
+  env: Env
+): Promise<AuthenticatedUser | null> {
+  try {
+    // Create a session request to get the current user
+    const url = new URL(request.url)
+    const sessionUrl = new URL('/auth/session', url.origin)
+    
+    // Create a new request for the session endpoint with the same cookies
+    const sessionRequest = new Request(sessionUrl.toString(), {
+      method: 'GET',
+      headers: {
+        'Cookie': request.headers.get('Cookie') || '',
+        'User-Agent': request.headers.get('User-Agent') || '',
+      },
+    })
+
+    // Get session from Auth.js
+    const authConfig = createAuthConfig(env)
+    const response = await Auth(sessionRequest, authConfig)
+    
+    if (!response.ok) {
+      return null
+    }
+
+    const session = await response.json() as { user?: AuthenticatedUser }
+    
+    if (!session?.user?.id) {
+      return null
+    }
+
+    return {
+      id: session.user.id,
+      email: session.user.email,
+      name: session.user.name,
+      image: session.user.image,
+    }
+  } catch (error) {
+    console.error('Authentication error:', error)
+    return null
+  }
+}
+
+export async function requireAuthentication(
+  request: Request,
+  env: Env
+): Promise<{ user: AuthenticatedUser } | Response> {
+  const user = await getAuthenticatedUser(request, env)
+  
+  if (!user) {
+    const corsHeaders = getCorsHeaders(request, env)
+    return new Response(
+      JSON.stringify({ 
+        error: 'Authentication required',
+        message: 'You must be signed in to perform this action'
+      }),
+      {
+        status: 401,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+  }
+
+  return { user }
+}
+
+export async function requirePetitionOwnership(
+  request: Request,
+  env: Env,
+  petitionId: number
+): Promise<{ user: AuthenticatedUser } | Response> {
+  const authResult = await requireAuthentication(request, env)
+  
+  if (authResult instanceof Response) {
+    return authResult
+  }
+
+  const { user } = authResult
+  const db = new DatabaseService(env.DB)
+  
+  try {
+    const petition = await db.getPetitionById(petitionId)
+    
+    if (!petition) {
+      const corsHeaders = getCorsHeaders(request, env)
+      return new Response(
+        JSON.stringify({ error: 'Petition not found' }),
+        {
+          status: 404,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
+
+    if (petition.created_by !== user.id) {
+      const corsHeaders = getCorsHeaders(request, env)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Forbidden',
+          message: 'You can only modify petitions you created'
+        }),
+        {
+          status: 403,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
+
+    return { user }
+  } catch (error) {
+    console.error('Petition ownership check error:', error)
+    const corsHeaders = getCorsHeaders(request, env)
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      {
+        status: 500,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+  }
 }

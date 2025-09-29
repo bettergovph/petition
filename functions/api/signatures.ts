@@ -5,7 +5,8 @@ import {
   createErrorResponse, 
   createSuccessResponse, 
   getDbService,
-  invalidateCachePattern 
+  invalidateCachePattern,
+  type AuthenticatedUser
 } from '../_shared/utils'
 
 export const onRequest = async (context: EventContext<Env>): Promise<Response> => {
@@ -17,7 +18,20 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
     
     if (context.request.method === 'POST') {
       const signatureData: CreateSignatureInput = await context.request.json()
-      const signature = await db.createSignature(signatureData)
+      
+      // Get authenticated user from context (set by router)
+      const user = context.data.user as AuthenticatedUser
+      if (!user) {
+        return createErrorResponse('Authentication required', 401)
+      }
+      
+      // Ensure the signature is created for the authenticated user
+      const signatureWithUser: CreateSignatureInput = {
+        ...signatureData,
+        user_id: user.id
+      }
+      
+      const signature = await db.createSignature(signatureWithUser)
       
       // Invalidate petition caches when a new signature is created
       // This ensures petition counts are updated immediately

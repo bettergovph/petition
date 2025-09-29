@@ -15,7 +15,7 @@ import { onRequest as petitionUnpublishHandler } from './api/petition/[id]/unpub
 import { onRequest as signaturesHandler } from './api/signatures'
 import { onRequest as categoriesHandler } from './api/categories'
 import { onRequest as authHandler } from './auth/[...auth]'
-import { getCorsHeaders, handleCORS } from './_shared/utils'
+import { getCorsHeaders, handleCORS, requireAuthentication, requirePetitionOwnership } from './_shared/utils'
 
 function createContext(
   request: Request,
@@ -80,20 +80,55 @@ export default {
 
       if (path.match(/^\/api\/users\/[^/]+\/signatures$/)) {
         const params = parsePathParams(path, '/api/users/[id]/signatures')
-        return await userSignaturesHandler(createContext(request, env, params))
+        // Require authentication for user signatures
+        const authResult = await requireAuthentication(request, env)
+        if (authResult instanceof Response) {
+          return authResult
+        }
+        const context = createContext(request, env, params)
+        context.data.user = authResult.user
+        return await userSignaturesHandler(context)
       }
 
       if (path.match(/^\/api\/users\/[^/]+\/petitions$/)) {
         const params = parsePathParams(path, '/api/users/[id]/petitions')
-        return await userPetitionsHandler(createContext(request, env, params))
+        // Require authentication for user petitions
+        const authResult = await requireAuthentication(request, env)
+        if (authResult instanceof Response) {
+          return authResult
+        }
+        const context = createContext(request, env, params)
+        context.data.user = authResult.user
+        return await userPetitionsHandler(context)
       }
 
       if (path.match(/^\/api\/users\/[^/]+$/)) {
         const params = parsePathParams(path, '/api/users/[id]')
-        return await userByIdHandler(createContext(request, env, params))
+        // Require authentication for user profiles
+        const authResult = await requireAuthentication(request, env)
+        if (authResult instanceof Response) {
+          return authResult
+        }
+        const context = createContext(request, env, params)
+        context.data.user = authResult.user
+        return await userByIdHandler(context)
       }
 
       if (path === '/api/petitions') {
+        const url = new URL(request.url)
+        const userId = url.searchParams.get('userId')
+        
+        // Require authentication for POST (creating petitions) or GET with userId parameter
+        if (request.method === 'POST' || userId) {
+          const authResult = await requireAuthentication(request, env)
+          if (authResult instanceof Response) {
+            return authResult
+          }
+          // Add user to context for the handler
+          const context = createContext(request, env)
+          context.data.user = authResult.user
+          return await petitionsHandler(context)
+        }
         return await petitionsHandler(createContext(request, env))
       }
 
@@ -104,12 +139,28 @@ export default {
 
       if (path.match(/^\/api\/petition\/\d+\/publish$/)) {
         const params = parsePathParams(path, '/api/petition/[id]/publish')
-        return await petitionPublishHandler(createContext(request, env, params))
+        // Require petition ownership for publishing
+        const petitionId = parseInt(params.id)
+        const authResult = await requirePetitionOwnership(request, env, petitionId)
+        if (authResult instanceof Response) {
+          return authResult
+        }
+        const context = createContext(request, env, params)
+        context.data.user = authResult.user
+        return await petitionPublishHandler(context)
       }
 
       if (path.match(/^\/api\/petition\/\d+\/unpublish$/)) {
         const params = parsePathParams(path, '/api/petition/[id]/unpublish')
-        return await petitionUnpublishHandler(createContext(request, env, params))
+        // Require petition ownership for unpublishing
+        const petitionId = parseInt(params.id)
+        const authResult = await requirePetitionOwnership(request, env, petitionId)
+        if (authResult instanceof Response) {
+          return authResult
+        }
+        const context = createContext(request, env, params)
+        context.data.user = authResult.user
+        return await petitionUnpublishHandler(context)
       }
 
       if (path.match(/^\/api\/petitions\/\d+\/signatures$/)) {
@@ -123,6 +174,16 @@ export default {
       }
 
       if (path === '/api/signatures') {
+        // Require authentication for POST (creating signatures)
+        if (request.method === 'POST') {
+          const authResult = await requireAuthentication(request, env)
+          if (authResult instanceof Response) {
+            return authResult
+          }
+          const context = createContext(request, env)
+          context.data.user = authResult.user
+          return await signaturesHandler(context)
+        }
         return await signaturesHandler(createContext(request, env))
       }
 

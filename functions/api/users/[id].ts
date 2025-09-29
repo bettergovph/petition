@@ -1,5 +1,5 @@
 import type { Env, EventContext } from '../../_shared/types'
-import { handleCORS, createErrorResponse, createSuccessResponse, createNotFoundResponse, getDbService } from '../../_shared/utils'
+import { handleCORS, createErrorResponse, createSuccessResponse, createNotFoundResponse, getDbService, type AuthenticatedUser } from '../../_shared/utils'
 
 export const onRequest = async (context: EventContext<Env>): Promise<Response> => {
   const corsResponse = handleCORS(context.request, context.env)
@@ -14,6 +14,14 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
     }
 
     if (context.request.method === 'GET') {
+      // Get authenticated user from context (set by router)
+      const authenticatedUser = context.data.user as AuthenticatedUser
+      if (!authenticatedUser) {
+        return createErrorResponse('Authentication required', 401)
+      }
+      
+      // Users can only access their own profile or any profile if authenticated
+      // Since you don't have public profiles, we'll allow authenticated users to view any profile
       const user = await db.getUserById(userId)
       if (!user) {
         return createNotFoundResponse('User not found')

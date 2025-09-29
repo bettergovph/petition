@@ -8,7 +8,8 @@ import {
   getDbService,
   generateCacheKey,
   getOrSetCache,
-  invalidateCachePattern
+  invalidateCachePattern,
+  type AuthenticatedUser
 } from '../_shared/utils'
 
 export const onRequest = async (context: EventContext<Env>): Promise<Response> => {
@@ -20,6 +21,12 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
     const url = new URL(context.request.url)
     
     if (context.request.method === 'POST') {
+      // Get authenticated user from context (set by router)
+      const user = context.data.user as AuthenticatedUser
+      if (!user) {
+        return createCachedErrorResponse('Authentication required', context.request, context.env, 401)
+      }
+      
       // Check if this is a multipart form (with image) or JSON
       const contentType = context.request.headers.get('content-type') || ''
       
@@ -37,7 +44,7 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
           type: formData.get('type') as 'local' | 'national',
           location: formData.get('location') as string || undefined,
           target_count: parseInt(formData.get('target_count') as string),
-          created_by: formData.get('created_by') as string,
+          created_by: user.id, // Use authenticated user's ID
           category_ids: JSON.parse(formData.get('category_ids') as string || '[]'),
           image_url: '' // Will be set after upload
         }
@@ -47,6 +54,8 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
       } else {
         // Handle JSON data (no image)
         petitionData = await context.request.json()
+        // Ensure the petition is created by the authenticated user
+        petitionData.created_by = user.id
       }
       
       // Step 1: Create petition record first (without image_url)
@@ -113,6 +122,12 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
 
       // If userId is provided, get petitions for specific user
       if (userId) {
+        // Get authenticated user from context (set by router when userId param is present)
+        const authenticatedUser = context.data.user as AuthenticatedUser
+        if (!authenticatedUser) {
+          return createCachedErrorResponse('Authentication required for user-specific petitions', context.request, context.env, 401)
+        }
+        
         const petitions = await getOrSetCache(
           cacheKey,
           context.env.CACHE,
