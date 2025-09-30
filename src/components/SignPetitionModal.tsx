@@ -6,14 +6,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useUserSignatures } from '@/hooks/useUserSignatures'
 import { signatureApi, ApiError } from '@/services/api'
 import type { PetitionWithDetails } from '@/types/api'
-import { 
-  Users, 
-  Shield, 
-  CheckCircle, 
-  Heart,
-  X,
-  Sparkles
-} from 'lucide-react'
+import { Users, Shield, CheckCircle, Heart, X, Sparkles } from 'lucide-react'
 import { SiGoogle } from '@icons-pack/react-simple-icons'
 
 interface SignPetitionModalProps {
@@ -43,7 +36,7 @@ export default function SignPetitionModal({
       // Store callback info for after sign-in
       sessionStorage.setItem('auth_callback', 'petition_sign')
       sessionStorage.setItem('petition_id', petition.id.toString())
-      
+
       await signIn(provider)
       // The actual signing will happen after successful authentication
     } catch (error) {
@@ -71,7 +64,7 @@ export default function SignPetitionModal({
         petition_id: petition.id,
         user_id: session.user.id,
         comment: comment.trim() || undefined,
-        anonymous: false,   // Always public signature
+        anonymous: false, // Always public signature
       })
 
       // Optimistically add to signed petitions
@@ -116,11 +109,9 @@ export default function SignPetitionModal({
             <CardTitle className="text-2xl font-bold text-gray-900 mb-2 pr-12">
               Sign This Petition
             </CardTitle>
-            <p className="text-gray-800">
-              Add your voice and share why this matters to you
-            </p>
+            <p className="text-gray-800">Add your voice and share why this matters to you</p>
           </CardHeader>
-          
+
           <CardContent className="pt-0">
             {signErrors && (
               <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
@@ -130,9 +121,7 @@ export default function SignPetitionModal({
 
             {/* Petition Info */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <h3 className="font-semibold text-gray-900 mb-2">
-                {petition.title}
-              </h3>
+              <h3 className="font-semibold text-gray-900 mb-2">{petition.title}</h3>
               <div className="flex items-center gap-4 text-sm text-gray-600">
                 <span className="flex items-center gap-1">
                   <Users className="w-4 h-4" />
@@ -153,7 +142,7 @@ export default function SignPetitionModal({
               <Textarea
                 rows={4}
                 value={comment}
-                onChange={(e) => setComment(e.target.value)}
+                onChange={e => setComment(e.target.value)}
                 placeholder="Share your thoughts on why this petition is important to you and your community..."
                 maxLength={500}
                 className="bg-white border-gray-300 text-gray-900 placeholder-gray-500 resize-none"
@@ -162,9 +151,7 @@ export default function SignPetitionModal({
                 <p className="text-xs text-gray-500">
                   Your comment will be public and help build support for this cause
                 </p>
-                <p className="text-xs text-gray-500">
-                  {comment.length}/500
-                </p>
+                <p className="text-xs text-gray-500">{comment.length}/500</p>
               </div>
             </div>
 
@@ -211,9 +198,7 @@ export default function SignPetitionModal({
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">
-              Already Signed!
-            </h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Already Signed!</h3>
             <p className="text-gray-600 mb-6">
               Thank you for supporting this petition. Your voice has been added to the cause.
             </p>
@@ -254,7 +239,7 @@ export default function SignPetitionModal({
             </Button>
           </div>
         </CardHeader>
-        
+
         <CardContent className="pt-0">
           {signErrors && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
@@ -264,9 +249,7 @@ export default function SignPetitionModal({
 
           {/* Petition Preview */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
-              {petition.title}
-            </h3>
+            <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{petition.title}</h3>
             <div className="flex items-center gap-4 text-sm text-gray-600">
               <span className="flex items-center gap-1">
                 <Users className="w-4 h-4" />
@@ -300,12 +283,13 @@ export default function SignPetitionModal({
             <Button
               onClick={() => handleSignIn('google')}
               disabled={status === 'loading'}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white flex items-center justify-center gap-3 h-12 text-lg font-semibold shadow-lg"
+              className="w-full text-white flex items-center justify-center gap-3 h-12 text-lg font-semibold shadow-lg"
+              variant={'default'}
             >
               <SiGoogle className="w-5 h-5" />
               {status === 'loading' ? 'Loading...' : 'Sign In & Support This Petition'}
             </Button>
-            
+
             <p className="text-center text-sm text-gray-600">
               Sign in to add your signature and join the movement for change
             </p>

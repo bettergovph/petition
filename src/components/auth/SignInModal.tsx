@@ -2,14 +2,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { SiGoogle, SiFacebook } from '@icons-pack/react-simple-icons'
-import { 
-  Shield, 
-  CheckCircle, 
-  Heart,
-  X,
-  Sparkles,
-  Users
-} from 'lucide-react'
+import { Shield, CheckCircle, Heart, X, Sparkles, Users } from 'lucide-react'
 
 interface SignInModalProps {
   isOpen: boolean
@@ -23,8 +16,8 @@ export default function SignInModal({
   isOpen,
   onClose,
   onSuccess,
-  title = "Sign In Required",
-  subtitle = "Please sign in to continue"
+  title = 'Sign In Required',
+  subtitle = 'Please sign in to continue',
 }: SignInModalProps) {
   const { signIn, status } = useAuth()
 
@@ -59,12 +52,8 @@ export default function SignInModal({
                 <Sparkles className="w-4 h-4" />
                 Join BetterGov.ph
               </div>
-              <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
-                {title}
-              </CardTitle>
-              <p className="text-gray-800">
-                {subtitle}
-              </p>
+              <CardTitle className="text-2xl font-bold text-gray-900 mb-2">{title}</CardTitle>
+              <p className="text-gray-800">{subtitle}</p>
             </div>
             <Button
               variant="ghost"
@@ -76,7 +65,7 @@ export default function SignInModal({
             </Button>
           </div>
         </CardHeader>
-        
+
         <CardContent className="pt-0">
           {/* Benefits */}
           <div className="grid grid-cols-2 gap-3 mb-6">
@@ -104,7 +93,8 @@ export default function SignInModal({
               <Button
                 onClick={() => handleSignIn('google')}
                 disabled={status === 'loading'}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white flex items-center justify-center gap-3 h-12 text-lg font-semibold shadow-lg"
+                className="w-full text-white flex items-center justify-center gap-3 h-12 text-lg font-semibold shadow-lg"
+                variant={'default'}
               >
                 <SiGoogle className="w-5 h-5" />
                 {status === 'loading' ? 'Signing In...' : 'Continue with Google'}
@@ -127,9 +117,7 @@ export default function SignInModal({
                 <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Shield className="w-6 h-6 text-yellow-600" />
                 </div>
-                <p className="text-yellow-800 font-medium mb-1">
-                  Authentication Unavailable
-                </p>
+                <p className="text-yellow-800 font-medium mb-1">Authentication Unavailable</p>
                 <p className="text-yellow-700 text-sm">
                   No authentication providers are currently configured.
                 </p>
