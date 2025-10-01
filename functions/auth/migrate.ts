@@ -1,5 +1,5 @@
-import { up } from "@auth/d1-adapter"
-import type { Env } from "../_shared/types"
+import { up } from '@auth/d1-adapter'
+import type { Env } from '../_shared/types'
 
 // Run Auth.js D1 migrations
 export async function runAuthMigrations(env: Env): Promise<void> {

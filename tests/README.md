@@ -57,12 +57,14 @@ npx playwright test --project=webkit
 ## Test Coverage
 
 ### Petition Browsing
+
 - ✅ Homepage petition display
 - ✅ Navigation to petition list
 - ✅ Petition card information
 - ✅ Search/filter functionality
 
 ### Petition Details
+
 - ✅ Petition detail page display
 - ✅ Breadcrumb navigation
 - ✅ Petition metadata (dates, categories, counts)
@@ -70,6 +72,7 @@ npx playwright test --project=webkit
 - ✅ Sharing options
 
 ### Petition Creation
+
 - ✅ Form navigation and display
 - ✅ Petition type selection (Local/National cards)
 - ✅ Location field for local petitions
@@ -80,6 +83,7 @@ npx playwright test --project=webkit
 - ✅ Successful petition creation
 
 ### Petition Signing
+
 - ✅ Sign modal opening
 - ✅ Form validation
 - ✅ Standard signature (with name)
@@ -92,6 +96,7 @@ npx playwright test --project=webkit
 - ✅ Cancel functionality
 
 ### Full Workflows
+
 - ✅ Complete petition lifecycle (create → browse → view → sign)
 - ✅ Multiple signature variations on same petition
 - ✅ Anonymous signature verification
@@ -101,13 +106,14 @@ npx playwright test --project=webkit
 The tests use dynamically generated test data to avoid conflicts:
 
 ```typescript
-const testData = PetitionTestHelpers.generateTestData();
+const testData = PetitionTestHelpers.generateTestData()
 // Generates unique emails, names, and titles with timestamps
 ```
 
 ## Browser Support
 
 Tests run on:
+
 - ✅ Chromium (Desktop)
 - ✅ Firefox (Desktop)
 - ✅ WebKit/Safari (Desktop)
@@ -128,16 +134,19 @@ The `test-helpers.ts` file provides utilities for:
 ## Debugging Tests
 
 ### View Test Results
+
 ```bash
 npx playwright show-report
 ```
 
 ### Debug Specific Test
+
 ```bash
 npx playwright test --debug example.spec.ts
 ```
 
 ### Record Test Actions
+
 ```bash
 npx playwright codegen localhost:5173
 ```
@@ -149,6 +158,7 @@ Test screenshots are automatically captured on failure. Videos are recorded for 
 ## CI/CD Integration
 
 Tests are configured to:
+
 - Run with retries on CI (2 retries)
 - Use single worker on CI for stability
 - Generate HTML reports
@@ -166,6 +176,7 @@ Tests are configured to:
 ### Test Environment
 
 Make sure your test environment has:
+
 - ✅ Database with test data or ability to create petitions
 - ✅ All API endpoints functioning
 - ✅ Development server running on localhost:5173

@@ -5,13 +5,13 @@ import { Button } from './ui/button'
 import { Badge } from './ui/badge'
 import { petitionApi, ApiError } from '../services/api'
 import type { PetitionWithDetails } from '../types/api'
-import { 
-  Calendar, 
-  MapPin, 
-  Target, 
-  Edit3, 
-  Eye, 
-  Share2, 
+import {
+  Calendar,
+  MapPin,
+  Target,
+  Edit3,
+  Eye,
+  Share2,
   CheckCircle,
   ArrowRight,
   Lightbulb,
@@ -20,13 +20,13 @@ import {
   PartyPopper,
   Sparkles,
   Trophy,
-  Heart
+  Heart,
 } from 'lucide-react'
 
 export default function ReviewPetition() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  
+
   const [petition, setPetition] = useState<PetitionWithDetails | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isPublishing, setIsPublishing] = useState(false)
@@ -34,14 +34,14 @@ export default function ReviewPetition() {
 
   const loadPetition = useCallback(async () => {
     if (!id) return
-    
+
     try {
       setIsLoading(true)
       const petitionData = await petitionApi.getBySlug(id)
-      
+
       // Check if user owns this petition - skip check for now since user type is limited
       // TODO: Fix user type to include id field
-      
+
       setPetition(petitionData)
     } catch (error) {
       console.error('Error loading petition:', error)
@@ -56,19 +56,19 @@ export default function ReviewPetition() {
       navigate('/')
       return
     }
-    
+
     loadPetition()
   }, [id, navigate, loadPetition])
 
   const handlePublish = async () => {
     if (!petition) return
-    
+
     try {
       setIsPublishing(true)
-      
+
       // Publish the petition
       await petitionApi.publish(petition.id)
-      
+
       // Navigate to the published petition
       navigate(`/petition/${petition.slug}?published=true`)
     } catch (error) {
@@ -130,8 +130,9 @@ export default function ReviewPetition() {
             <h1 className="text-4xl font-bold mb-2">🎉 Congratulations! 🎉</h1>
             <p className="text-xl mb-4">Your petition has been created successfully!</p>
             <p className="text-blue-100 max-w-2xl mx-auto">
-              You're about to make a real difference! Review your petition below and when you're ready, 
-              publish it to start collecting signatures from supporters who share your passion for change.
+              You're about to make a real difference! Review your petition below and when you're
+              ready, publish it to start collecting signatures from supporters who share your
+              passion for change.
             </p>
           </div>
         </div>
@@ -143,15 +144,17 @@ export default function ReviewPetition() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-gray-900">Review Your Petition</h2>
-              <p className="text-gray-800 mt-1">Make sure everything looks perfect before going live</p>
+              <p className="text-gray-800 mt-1">
+                Make sure everything looks perfect before going live
+              </p>
             </div>
             <div className="flex gap-3">
               <Button variant="outline" onClick={handleEdit} className="flex items-center gap-2">
                 <Edit3 className="h-4 w-4" />
                 Edit
               </Button>
-              <Button 
-                onClick={handlePublish} 
+              <Button
+                onClick={handlePublish}
                 disabled={isPublishing}
                 className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg transform hover:scale-105 transition-all duration-200"
               >
@@ -182,15 +185,17 @@ export default function ReviewPetition() {
                 <Eye className="h-5 w-5 text-blue-600 mt-1" />
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900">Petition Preview</h2>
-                  <p className="text-sm text-gray-800">This is how your petition will appear to supporters</p>
+                  <p className="text-sm text-gray-800">
+                    This is how your petition will appear to supporters
+                  </p>
                 </div>
               </div>
 
               {/* Petition Image */}
               {petition.image_url && (
                 <div className="mb-6">
-                  <img 
-                    src={petition.image_url} 
+                  <img
+                    src={petition.image_url}
                     alt={petition.title}
                     className="w-full h-64 object-cover rounded-lg"
                   />
@@ -223,13 +228,18 @@ export default function ReviewPetition() {
                   <div className="flex items-center gap-2">
                     <Target className="h-4 w-4 text-blue-600" />
                     <span className="text-sm text-gray-800">
-                      Target: <span className="font-medium">{petition.target_count.toLocaleString()}</span> signatures
+                      Target:{' '}
+                      <span className="font-medium">{petition.target_count.toLocaleString()}</span>{' '}
+                      signatures
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-blue-600" />
                     <span className="text-sm text-gray-800">
-                      Due: <span className="font-medium">{new Date(petition.due_date).toLocaleDateString()}</span>
+                      Due:{' '}
+                      <span className="font-medium">
+                        {new Date(petition.due_date).toLocaleDateString()}
+                      </span>
                     </span>
                   </div>
                 </div>
@@ -244,7 +254,7 @@ export default function ReviewPetition() {
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    What's Next? 
+                    What's Next?
                     <Sparkles className="h-4 w-4 text-yellow-500" />
                   </h2>
                   <p className="text-sm text-gray-800">Your journey to making change starts now!</p>
@@ -260,7 +270,9 @@ export default function ReviewPetition() {
                     <h3 className="font-medium text-gray-900 flex items-center gap-2">
                       🚀 Your petition goes live instantly!
                     </h3>
-                    <p className="text-sm text-gray-800">Supporters worldwide can discover and sign your petition right away</p>
+                    <p className="text-sm text-gray-800">
+                      Supporters worldwide can discover and sign your petition right away
+                    </p>
                   </div>
                 </div>
 
@@ -272,7 +284,9 @@ export default function ReviewPetition() {
                     <h3 className="font-medium text-gray-900 flex items-center gap-2">
                       📢 Share and amplify your voice
                     </h3>
-                    <p className="text-sm text-gray-800">Spread the word on social media, email friends, and rally your community</p>
+                    <p className="text-sm text-gray-800">
+                      Spread the word on social media, email friends, and rally your community
+                    </p>
                   </div>
                 </div>
 
@@ -284,7 +298,9 @@ export default function ReviewPetition() {
                     <h3 className="font-medium text-gray-900 flex items-center gap-2">
                       💬 Build a movement together
                     </h3>
-                    <p className="text-sm text-gray-800">Connect with supporters, share updates, and keep the momentum growing</p>
+                    <p className="text-sm text-gray-800">
+                      Connect with supporters, share updates, and keep the momentum growing
+                    </p>
                   </div>
                 </div>
 
@@ -296,7 +312,9 @@ export default function ReviewPetition() {
                     <h3 className="font-medium text-gray-900 flex items-center gap-2">
                       🏆 Achieve real change!
                     </h3>
-                    <p className="text-sm text-gray-800">Present your petition to decision makers and celebrate your victory</p>
+                    <p className="text-sm text-gray-800">
+                      Present your petition to decision makers and celebrate your victory
+                    </p>
                   </div>
                 </div>
               </div>
@@ -353,15 +371,24 @@ export default function ReviewPetition() {
               <div className="space-y-3 text-sm text-gray-800">
                 <div className="flex items-start gap-3 p-2 bg-white rounded-lg">
                   <Share2 className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
-                  <p><strong>Strike while it's hot!</strong> Share within 24 hours to build unstoppable momentum</p>
+                  <p>
+                    <strong>Strike while it's hot!</strong> Share within 24 hours to build
+                    unstoppable momentum
+                  </p>
                 </div>
                 <div className="flex items-start gap-3 p-2 bg-white rounded-lg">
                   <MessageCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                  <p><strong>Engage your community!</strong> Reply to comments and keep supporters excited</p>
+                  <p>
+                    <strong>Engage your community!</strong> Reply to comments and keep supporters
+                    excited
+                  </p>
                 </div>
                 <div className="flex items-start gap-3 p-2 bg-white rounded-lg">
                   <Heart className="h-4 w-4 text-pink-500 mt-0.5 flex-shrink-0" />
-                  <p><strong>Share updates!</strong> Keep supporters informed about your progress and wins</p>
+                  <p>
+                    <strong>Share updates!</strong> Keep supporters informed about your progress and
+                    wins
+                  </p>
                 </div>
               </div>
             </Card>
@@ -370,16 +397,12 @@ export default function ReviewPetition() {
             <Card className="p-6">
               <h3 className="font-semibold text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start" 
-                  onClick={handleEdit}
-                >
+                <Button variant="outline" className="w-full justify-start" onClick={handleEdit}>
                   <Edit3 className="h-4 w-4 mr-2" />
                   Edit Petition
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full justify-start"
                   onClick={() => navigate('/')}
                 >

@@ -1,73 +1,82 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test'
 
 test.describe('Petition Browsing', () => {
   test('should display petition list on homepage', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/')
 
     // Check that the homepage loads
-    await expect(page).toHaveTitle(/Petition/);
+    await expect(page).toHaveTitle(/Petition/)
 
     // Check for main navigation elements
-    await expect(page.locator('text=Home')).toBeVisible();
-    await expect(page.locator('text=Browse Petitions')).toBeVisible();
+    await expect(page.locator('text=Home')).toBeVisible()
+    await expect(page.locator('text=Browse Petitions')).toBeVisible()
 
     // Check for petition cards or content
     // This might vary based on whether there are existing petitions
-    const petitionSection = page.locator('[data-testid="featured-petitions"], .petition-card, text="Featured Petitions"').first();
-    await expect(petitionSection).toBeVisible({ timeout: 10000 });
-  });
+    const petitionSection = page
+      .locator('[data-testid="featured-petitions"], .petition-card, text="Featured Petitions"')
+      .first()
+    await expect(petitionSection).toBeVisible({ timeout: 10000 })
+  })
 
   test('should navigate to all petitions page', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/')
 
     // Look for a link to view all petitions
-    const browsePetitionsLink = page.locator('text=Browse Petitions, text=View All, text=All Petitions').first();
-    await browsePetitionsLink.click();
+    const browsePetitionsLink = page
+      .locator('text=Browse Petitions, text=View All, text=All Petitions')
+      .first()
+    await browsePetitionsLink.click()
 
     // Should navigate to petitions list page
-    await expect(page).toHaveURL(/\/petitions/);
+    await expect(page).toHaveURL(/\/petitions/)
 
     // Check for petition list elements
-    await expect(page.locator('text=All Petitions, text=Browse, text=Filter').first()).toBeVisible();
-  });
+    await expect(page.locator('text=All Petitions, text=Browse, text=Filter').first()).toBeVisible()
+  })
 
   test('should display petition cards with essential information', async ({ page }) => {
-    await page.goto('/petitions');
+    await page.goto('/petitions')
 
     // Wait for petitions to load
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('networkidle')
 
     // Check if there are petition cards
-    const petitionCards = page.locator('.petition-card, [data-testid="petition-card"]');
+    const petitionCards = page.locator('.petition-card, [data-testid="petition-card"]')
 
-    if (await petitionCards.count() > 0) {
-      const firstCard = petitionCards.first();
-      await expect(firstCard).toBeVisible();
+    if ((await petitionCards.count()) > 0) {
+      const firstCard = petitionCards.first()
+      await expect(firstCard).toBeVisible()
 
       // Each petition card should have a title
-      await expect(firstCard.locator('h2, h3, .title, [data-testid="petition-title"]').first()).toBeVisible();
+      await expect(
+        firstCard.locator('h2, h3, .title, [data-testid="petition-title"]').first()
+      ).toBeVisible()
 
       // Should have some indication of signatures or progress
-      await expect(firstCard.locator('text=/\\d+.*sign/, text=/signature/, text=/\\d+%/').first()).toBeVisible();
+      await expect(
+        firstCard.locator('text=/\\d+.*sign/, text=/signature/, text=/\\d+%/').first()
+      ).toBeVisible()
     }
-  });
+  })
 
   test('should be able to search/filter petitions', async ({ page }) => {
-    await page.goto('/petitions');
+    await page.goto('/petitions')
 
     // Look for search or filter inputs
-    const searchInput = page.locator('input[type="search"], input[placeholder*="search"], input[placeholder*="Search"]').first();
+    const searchInput = page
+      .locator('input[type="search"], input[placeholder*="search"], input[placeholder*="Search"]')
+      .first()
 
     if (await searchInput.isVisible()) {
-      await searchInput.fill('environment');
+      await searchInput.fill('environment')
 
       // Wait for results to filter
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(1000)
 
       // Results should be filtered (this is a basic check)
-      const results = page.locator('.petition-card, [data-testid="petition-card"]');
       // At minimum, the page shouldn't crash
-      await expect(page).not.toHaveURL(/error/);
+      await expect(page).not.toHaveURL(/error/)
     }
-  });
-});
+  })
+})

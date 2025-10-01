@@ -25,31 +25,31 @@ function App() {
     <AuthProvider>
       <ModalProvider>
         <HelmetProvider>
-        <Router>
-        <ScrollToTop />
-        <div className="min-h-screen bg-gray-50">
-          <Navbar />
-          <main>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/create" element={<CreatePetition />} />
-              <Route path="/review/:id" element={<ReviewPetition />} />
-              <Route path="/how-it-works" element={<HowItWorks />} />
-              <Route path="/petition/:slug" element={<PetitionDetail />} />
-              <Route path="/petition/:slug/edit" element={<EditPetition />} />
-              <Route path="/proposals/:slug" element={<PetitionDetail />} />
-              <Route path="/profile" element={<UserProfile />} />
-              <Route path="/terms" element={<TermsOfService />} />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route path="/petitions" element={<AllPetitions />} />
-              <Route path="/featured" element={<FeaturedPetitions />} />
-              <Route path="/auth/signin" element={<SignInPage />} />
-              <Route path="/auth/error" element={<AuthErrorPage />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-        </Router>
+          <Router>
+            <ScrollToTop />
+            <div className="min-h-screen bg-gray-50">
+              <Navbar />
+              <main>
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/create" element={<CreatePetition />} />
+                  <Route path="/review/:id" element={<ReviewPetition />} />
+                  <Route path="/how-it-works" element={<HowItWorks />} />
+                  <Route path="/petition/:slug" element={<PetitionDetail />} />
+                  <Route path="/petition/:slug/edit" element={<EditPetition />} />
+                  <Route path="/proposals/:slug" element={<PetitionDetail />} />
+                  <Route path="/profile" element={<UserProfile />} />
+                  <Route path="/terms" element={<TermsOfService />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/petitions" element={<AllPetitions />} />
+                  <Route path="/featured" element={<FeaturedPetitions />} />
+                  <Route path="/auth/signin" element={<SignInPage />} />
+                  <Route path="/auth/error" element={<AuthErrorPage />} />
+                </Routes>
+              </main>
+              <Footer />
+            </div>
+          </Router>
         </HelmetProvider>
       </ModalProvider>
     </AuthProvider>

@@ -100,6 +100,7 @@ Then fill in your OAuth credentials in `.env.local`.
 ## Testing Authentication
 
 1. Start the development server:
+
    ```bash
    npm run dev
    ```

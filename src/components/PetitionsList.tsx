@@ -36,12 +36,10 @@ export default function PetitionsList() {
             <h2 className="text-3xl font-bold text-gray-900 mb-4 font-[Figtree]">
               Featured Petitions
             </h2>
-            <p className="text-lg text-gray-800 max-w-2xl mx-auto">
-              Loading petitions...
-            </p>
+            <p className="text-lg text-gray-800 max-w-2xl mx-auto">Loading petitions...</p>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+            {[1, 2, 3, 4, 5, 6].map(i => (
               <Card key={i} className="animate-pulse">
                 <CardHeader>
                   <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>

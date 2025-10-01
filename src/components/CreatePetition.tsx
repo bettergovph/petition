@@ -6,9 +6,10 @@ import { Input } from './ui/input'
 import { Badge } from './ui/badge'
 // import { ImageUpload } from './ui/ImageUpload' // Using custom implementation for server-side upload
 import { petitionApi, categoryApi, ApiError } from '../services/api'
-import type { Category } from '../types/api'
+import type { Category, Petition } from '../types/api'
 import MDEditor, { commands } from '@uiw/react-md-editor'
-import { useAuth, type Session } from '../hooks/useAuth'
+import { useAuth } from '../hooks/useAuthHook'
+import type { Session } from '../hooks/useAuth'
 import { useTranslation } from 'react-i18next'
 import CreatePetitionSignIn from './auth/CreatePetitionSignIn'
 
@@ -175,7 +176,7 @@ export default function CreatePetition() {
     const previewUrl = URL.createObjectURL(file)
     setImageState({ file, url: previewUrl })
     handleInputChange('imageUrl', previewUrl) // For preview purposes
-    
+
     // Clear any previous image errors
     if (errors.imageUrl) {
       setErrors(prev => ({ ...prev, imageUrl: undefined }))
@@ -243,7 +244,7 @@ export default function CreatePetition() {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
 
-        petition = await response.json() as any
+        petition = (await response.json()) as Petition
       } else {
         // Create petition without image using JSON
         const petitionData = {
@@ -476,12 +477,12 @@ export default function CreatePetition() {
                     commands.italic,
                     commands.unorderedListCommand,
                     commands.orderedListCommand,
-                    commands.link
+                    commands.link,
                   ]}
-                  style={{ 
-                    border: '1px solid #ccc', 
+                  style={{
+                    border: '1px solid #ccc',
                     borderRadius: '0',
-                    backgroundColor: 'white'
+                    backgroundColor: 'white',
                   }}
                   height={300}
                 />
@@ -532,7 +533,7 @@ export default function CreatePetition() {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => {
+                  onChange={e => {
                     const file = e.target.files?.[0]
                     if (file) {
                       handleImageSelected(file)
@@ -552,7 +553,7 @@ export default function CreatePetition() {
                       />
                       <button
                         type="button"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.preventDefault()
                           e.stopPropagation()
                           handleImageRemoved()
@@ -712,10 +713,7 @@ export default function CreatePetition() {
                     />
                   )}
                   <div>
-                    <p className="font-medium text-green-900">
-                      {session.user.name || 'User'}
-                    </p>
-
+                    <p className="font-medium text-green-900">{session.user.name || 'User'}</p>
                   </div>
                 </div>
               </div>

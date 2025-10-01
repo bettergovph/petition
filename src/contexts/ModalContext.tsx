@@ -1,27 +1,8 @@
-import { createContext, useContext, useState } from 'react'
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 import SignInModal from '@/components/auth/SignInModal'
-
-interface ModalContextType {
-  showSignInModal: (options?: SignInModalOptions) => void
-  hideSignInModal: () => void
-  isSignInModalOpen: boolean
-}
-
-interface SignInModalOptions {
-  title?: string
-  subtitle?: string
-  onSuccess?: () => void
-}
-
-interface ModalState {
-  signIn: {
-    isOpen: boolean
-    options: SignInModalOptions
-  }
-}
-
-const ModalContext = createContext<ModalContextType | undefined>(undefined)
+import { ModalContext } from './modal-context'
+import type { SignInModalOptions, ModalState } from './modal-types'
 
 export function ModalProvider({ children }: { children: ReactNode }) {
   const [modalState, setModalState] = useState<ModalState>({
@@ -83,12 +64,4 @@ export function ModalProvider({ children }: { children: ReactNode }) {
       />
     </ModalContext.Provider>
   )
-}
-
-export function useModal() {
-  const context = useContext(ModalContext)
-  if (context === undefined) {
-    throw new Error('useModal must be used within a ModalProvider')
-  }
-  return context
 }

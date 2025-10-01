@@ -36,6 +36,7 @@ This document provides detailed technical information about the Petitions by Bet
 ### Core Tables
 
 #### Users
+
 ```sql
 CREATE TABLE users (
   id TEXT PRIMARY KEY,           -- Auth.js compatible TEXT ID
@@ -49,6 +50,7 @@ CREATE TABLE users (
 ```
 
 #### Petitions
+
 ```sql
 CREATE TABLE petitions (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -72,6 +74,7 @@ CREATE TABLE petitions (
 ```
 
 #### Signatures
+
 ```sql
 CREATE TABLE signatures (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -88,6 +91,7 @@ CREATE TABLE signatures (
 ```
 
 #### Categories
+
 ```sql
 CREATE TABLE categories (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -98,6 +102,7 @@ CREATE TABLE categories (
 ```
 
 #### Petition Categories (Junction Table)
+
 ```sql
 CREATE TABLE petition_categories (
   petition_id INTEGER,
@@ -311,6 +316,7 @@ npx playwright test --debug
 #### Test Configuration
 
 See `playwright.config.ts` for detailed test configuration including:
+
 - Browser settings (Chromium, Firefox, WebKit)
 - Viewport configurations
 - Test timeouts
@@ -376,6 +382,7 @@ petition/
 ### CreatePetition Component
 
 **Features:**
+
 - Card-based petition type selection (Local vs National)
 - Rich markdown editor for descriptions
 - Base64 image upload with preview
@@ -385,6 +392,7 @@ petition/
 - Target signature count setting
 
 **Technical Details:**
+
 - Uses `@uiw/react-md-editor` for markdown editing
 - Implements custom image upload with base64 encoding
 - Form state management with React hooks
@@ -393,6 +401,7 @@ petition/
 ### PetitionDetail Component
 
 **Features:**
+
 - SEO-optimized meta tags with Open Graph support
 - Progress tracking with visual progress bars
 - Recent signatures list with pagination
@@ -401,6 +410,7 @@ petition/
 - Responsive design for all devices
 
 **Technical Details:**
+
 - React Suspense for loading states
 - Dynamic meta tag generation for SEO
 - Cache-busting for real-time updates
@@ -409,6 +419,7 @@ petition/
 ### SignPetitionModal Component
 
 **Features:**
+
 - Form validation with real-time feedback
 - Anonymous signing option
 - Comment support with character counting
@@ -416,6 +427,7 @@ petition/
 - Success/error state handling
 
 **Technical Details:**
+
 - Modal state management with context
 - Form validation with custom hooks
 - API integration with error handling
@@ -480,6 +492,7 @@ petition/
 #### Database Issues
 
 **Database not found:**
+
 ```bash
 # Recreate local database
 wrangler d1 create petition-db --local
@@ -487,6 +500,7 @@ npm run db:setup
 ```
 
 **Migration errors:**
+
 ```bash
 # Reset and re-run migrations
 rm -rf .wrangler/state/d1/
@@ -496,6 +510,7 @@ npm run db:setup
 #### Build Issues
 
 **Wrangler not found:**
+
 ```bash
 # Install globally
 npm install -g wrangler
@@ -504,6 +519,7 @@ npx wrangler login
 ```
 
 **Build errors:**
+
 ```bash
 # Clean install
 rm -rf node_modules package-lock.json
@@ -513,6 +529,7 @@ npm install
 #### Test Issues
 
 **Tests failing:**
+
 ```bash
 # Install Playwright browsers
 npx playwright install
@@ -523,11 +540,13 @@ npm run dev  # In separate terminal
 ### Performance Issues
 
 **Slow database queries:**
+
 - Check indexes are properly created
 - Analyze query execution plans
 - Consider query optimization
 
 **Slow page loads:**
+
 - Check caching configuration
 - Optimize image sizes
 - Review bundle size

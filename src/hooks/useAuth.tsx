@@ -1,26 +1,9 @@
-import { useState, useEffect, createContext, useContext } from 'react'
+import { useState, useEffect } from 'react'
 import type { ReactNode } from 'react'
+import type { User, Session } from './auth-types'
+import { AuthContext } from './auth-context'
 
-export interface User {
-  id: string
-  name: string | null
-  email: string | null
-  image: string | null
-}
-
-export interface Session {
-  user: User
-  expires: string
-}
-
-interface AuthContextType {
-  session: Session | null
-  status: 'loading' | 'authenticated' | 'unauthenticated'
-  signIn: (provider: 'google' | 'facebook') => Promise<void>
-  signOut: () => Promise<void>
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+export type { User, Session }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
@@ -82,7 +65,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       form.appendChild(callbackInput)
 
-
       // Submit the form
       document.body.appendChild(form)
       form.submit()
@@ -134,12 +116,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   )
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-  return context
 }

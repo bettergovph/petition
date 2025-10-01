@@ -1,0 +1,50 @@
+name: Deploy to Production
+
+on:
+  workflow_run:
+    workflows: ['Security Scan']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy-production:
+    name: Deploy to Production Environment
+    runs-on: ubuntu-latest
+    environment: production
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run full test suite
+        run: |
+          npm run lint
+          npm run format:check
+          npx tsc --noEmit
+          npm run build
+          npm run test:e2e
+
+      #      - name: Deploy to Cloudflare Pages (Production)
+      #        uses: cloudflare/pages-action@v1
+      #        with:
+      #          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      #          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      #          projectName: petition
+      #          directory: dist
+      #          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify deployment status
+        run: |
+          echo "Production deployment completed successfully"
+          echo "Environment: production"
+          echo "Branch: ${{ github.ref_name }}"

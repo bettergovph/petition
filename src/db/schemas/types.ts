@@ -51,7 +51,6 @@ export interface PetitionCategory {
   category_id: number
 }
 
-
 export interface CreatePetitionInput {
   title: string
   description: string
@@ -83,7 +82,15 @@ export interface UserReport {
   reporter_user_id: string
   reported_item_type: 'petition' | 'signature'
   reported_item_id: number
-  report_reason: 'spam' | 'inappropriate_content' | 'harassment' | 'misinformation' | 'hate_speech' | 'violence' | 'copyright_violation' | 'other'
+  report_reason:
+    | 'spam'
+    | 'inappropriate_content'
+    | 'harassment'
+    | 'misinformation'
+    | 'hate_speech'
+    | 'violence'
+    | 'copyright_violation'
+    | 'other'
   report_description?: string
   status: 'pending' | 'reviewed' | 'resolved' | 'dismissed'
   admin_notes?: string
@@ -96,7 +103,15 @@ export interface UserReport {
 export interface CreateUserReportInput {
   reported_item_type: 'petition' | 'signature'
   reported_item_id: number
-  report_reason: 'spam' | 'inappropriate_content' | 'harassment' | 'misinformation' | 'hate_speech' | 'violence' | 'copyright_violation' | 'other'
+  report_reason:
+    | 'spam'
+    | 'inappropriate_content'
+    | 'harassment'
+    | 'misinformation'
+    | 'hate_speech'
+    | 'violence'
+    | 'copyright_violation'
+    | 'other'
   report_description?: string
   reporter_user_id: string
 }

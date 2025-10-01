@@ -68,6 +68,7 @@ This will start both the React frontend and the API functions on `http://localho
 ## Database Schema
 
 ### Users Table
+
 - `id` (INTEGER PRIMARY KEY)
 - `first_name` (TEXT)
 - `last_name` (TEXT)
@@ -76,6 +77,7 @@ This will start both the React frontend and the API functions on `http://localho
 - `created_at`, `updated_at` (DATETIME)
 
 ### Petitions Table
+
 - `id` (INTEGER PRIMARY KEY)
 - `title` (TEXT)
 - `description` (TEXT)
@@ -88,6 +90,7 @@ This will start both the React frontend and the API functions on `http://localho
 - `created_at`, `updated_at` (DATETIME)
 
 ### Signatures Table
+
 - `id` (INTEGER PRIMARY KEY)
 - `petition_id` (INTEGER, foreign key)
 - `user_id` (INTEGER, foreign key)
@@ -97,12 +100,14 @@ This will start both the React frontend and the API functions on `http://localho
 - `created_at` (DATETIME)
 
 ### Categories Table
+
 - `id` (INTEGER PRIMARY KEY)
 - `name` (TEXT UNIQUE)
 - `description` (TEXT)
 - `created_at` (DATETIME)
 
 ### Petition Categories (Junction Table)
+
 - `petition_id` (INTEGER, foreign key)
 - `category_id` (INTEGER, foreign key)
 

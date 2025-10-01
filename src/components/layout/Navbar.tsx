@@ -3,8 +3,8 @@ import { X, Menu, ChevronDown, Globe } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { LANGUAGES, type LanguageType } from '../../i18n/languages'
-import { useAuth } from '../../hooks/useAuth'
-import { useModal } from '../../contexts/ModalContext'
+import { useAuth } from '../../hooks/useAuthHook'
+import { useModal } from '../../contexts/useModal'
 import UserProfile from '../auth/UserProfile'
 
 const mainNavigation = [

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { useModal } from '../contexts/ModalContext'
-import { useAuth } from '../hooks/useAuth'
+import { useModal } from '../contexts/useModal'
+import { useAuth } from '../hooks/useAuthHook'
 import { Card, CardContent } from './ui/card'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
@@ -16,7 +16,7 @@ import {
   Heart,
   BarChart3,
   Settings,
-  User
+  User,
 } from 'lucide-react'
 
 interface UserStats {
@@ -54,12 +54,15 @@ export default function UserProfile() {
       // setSupportedPetitions(supported)
 
       // Calculate stats
-      const totalSignaturesReceived = created.reduce((sum, petition) => sum + petition.current_count, 0)
+      const totalSignaturesReceived = created.reduce(
+        (sum, petition) => sum + petition.current_count,
+        0
+      )
       setUserStats({
         petitionsCreated: created.length,
         petitionsSigned: 0, // Will be updated when supported petitions API is ready
         totalSignaturesReceived,
-        activePetitions: created.filter(p => p.status === 'active').length
+        activePetitions: created.filter(p => p.status === 'active').length,
       })
     } catch (err) {
       console.error('Failed to load user data:', err)
@@ -92,7 +95,7 @@ export default function UserProfile() {
           <Card className="max-w-md mx-auto p-8 text-center">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Sign In Required</h2>
             <p className="text-gray-800 mb-6">Please sign in to view your profile.</p>
-            <Button 
+            <Button
               onClick={() => showSignInModal()}
               className="bg-blue-600 hover:bg-blue-700 text-white"
             >
@@ -227,7 +230,9 @@ export default function UserProfile() {
                       </div>
                       <div className="ml-4">
                         <p className="text-sm font-medium text-gray-800">Petitions Created</p>
-                        <p className="text-2xl font-bold text-gray-900">{userStats.petitionsCreated}</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {userStats.petitionsCreated}
+                        </p>
                       </div>
                     </div>
                   </CardContent>
@@ -243,7 +248,9 @@ export default function UserProfile() {
                       </div>
                       <div className="ml-4">
                         <p className="text-sm font-medium text-gray-800">Petitions Supported</p>
-                        <p className="text-2xl font-bold text-gray-900">{userStats.petitionsSigned}</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {userStats.petitionsSigned}
+                        </p>
                       </div>
                     </div>
                   </CardContent>
@@ -259,7 +266,9 @@ export default function UserProfile() {
                       </div>
                       <div className="ml-4">
                         <p className="text-sm font-medium text-gray-800">Total Signatures</p>
-                        <p className="text-2xl font-bold text-gray-900">{userStats.totalSignaturesReceived}</p>
+                        <p className="text-2xl font-bold text-gray-900">
+                          {userStats.totalSignaturesReceived}
+                        </p>
                       </div>
                     </div>
                   </CardContent>
@@ -272,7 +281,9 @@ export default function UserProfile() {
                       <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
                       {createdPetitions.length === 0 ? (
                         <div className="text-center py-8">
-                          <p className="text-gray-500 mb-4">You haven't created any petitions yet.</p>
+                          <p className="text-gray-500 mb-4">
+                            You haven't created any petitions yet.
+                          </p>
                           <Link to="/create">
                             <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                               Create Your First Petition
@@ -281,8 +292,11 @@ export default function UserProfile() {
                         </div>
                       ) : (
                         <div className="space-y-4">
-                          {createdPetitions.slice(0, 3).map((petition) => (
-                            <div key={petition.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                          {createdPetitions.slice(0, 3).map(petition => (
+                            <div
+                              key={petition.id}
+                              className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                            >
                               <div className="flex-1">
                                 <h4 className="font-medium text-gray-900">{petition.title}</h4>
                                 <p className="text-sm text-gray-800">
@@ -311,8 +325,12 @@ export default function UserProfile() {
                       <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <BarChart3 className="w-8 h-8 text-gray-400" />
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">No petitions created yet</h3>
-                      <p className="text-gray-800 mb-6">Start making a difference by creating your first petition.</p>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        No petitions created yet
+                      </h3>
+                      <p className="text-gray-800 mb-6">
+                        Start making a difference by creating your first petition.
+                      </p>
                       <Link to="/create">
                         <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                           Create Your First Petition
@@ -322,7 +340,7 @@ export default function UserProfile() {
                   </Card>
                 ) : (
                   <div className="grid grid-cols-1 gap-6">
-                    {createdPetitions.map((petition) => (
+                    {createdPetitions.map(petition => (
                       <Card key={petition.id}>
                         <CardContent className="p-6">
                           <div className="flex flex-col lg:flex-row lg:items-start gap-6">
@@ -338,7 +356,9 @@ export default function UserProfile() {
                             <div className="flex-1">
                               <div className="flex items-start justify-between mb-3">
                                 <div>
-                                  <h3 className="text-xl font-semibold text-gray-900 mb-2">{petition.title}</h3>
+                                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                                    {petition.title}
+                                  </h3>
                                   <div className="flex items-center gap-4 text-sm text-gray-800 mb-2">
                                     <div className="flex items-center gap-1">
                                       <Calendar className="w-4 h-4" />
@@ -357,7 +377,11 @@ export default function UserProfile() {
                                 </div>
                                 <div className="flex gap-2">
                                   <Link to={`/petition/${petition.slug}/edit`}>
-                                    <Button variant="outline" size="sm" className="flex items-center gap-2">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      className="flex items-center gap-2"
+                                    >
                                       <Edit3 className="w-4 h-4" />
                                       Edit
                                     </Button>
@@ -370,7 +394,9 @@ export default function UserProfile() {
                                 </div>
                               </div>
 
-                              <p className="text-gray-700 mb-4 line-clamp-2">{petition.description}</p>
+                              <p className="text-gray-700 mb-4 line-clamp-2">
+                                {petition.description}
+                              </p>
 
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-6">
@@ -383,7 +409,10 @@ export default function UserProfile() {
                                   <div className="flex items-center gap-2">
                                     <Target className="w-4 h-4 text-gray-500" />
                                     <span className="text-sm text-gray-800">
-                                      {Math.round((petition.current_count / petition.target_count) * 100)}% complete
+                                      {Math.round(
+                                        (petition.current_count / petition.target_count) * 100
+                                      )}
+                                      % complete
                                     </span>
                                   </div>
                                 </div>
@@ -395,7 +424,7 @@ export default function UserProfile() {
                                   <div
                                     className="bg-blue-600 h-2 rounded-full"
                                     style={{
-                                      width: `${Math.min((petition.current_count / petition.target_count) * 100, 100)}%`
+                                      width: `${Math.min((petition.current_count / petition.target_count) * 100, 100)}%`,
                                     }}
                                   ></div>
                                 </div>
@@ -417,8 +446,12 @@ export default function UserProfile() {
                   <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Heart className="w-8 h-8 text-gray-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Supported petitions coming soon</h3>
-                  <p className="text-gray-800">This feature will show all the petitions you've signed and supported.</p>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    Supported petitions coming soon
+                  </h3>
+                  <p className="text-gray-800">
+                    This feature will show all the petitions you've signed and supported.
+                  </p>
                 </CardContent>
               </Card>
             )}

@@ -61,7 +61,6 @@ export default function AllPetitions() {
     fetchPetitions(false)
   }
 
-
   const filteredPetitions = petitions.filter(
     petition =>
       petition.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -180,9 +179,9 @@ export default function AllPetitions() {
             <>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {filteredPetitions.map(petition => (
-                  <PetitionCard 
-                    key={petition.id} 
-                    petition={petition} 
+                  <PetitionCard
+                    key={petition.id}
+                    petition={petition}
                     showSignedStatus={true}
                     showTypeBadge={true}
                   />

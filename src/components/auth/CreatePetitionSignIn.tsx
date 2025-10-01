@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { useModal } from '@/contexts/ModalContext'
+import { useModal } from '@/contexts/useModal'
 import {
   Users,
   Shield,
@@ -80,7 +80,9 @@ export default function CreatePetitionSignIn({ isSubmitting = false }: CreatePet
               </div>
 
               <div>
-                <h3 className="text-3xl font-bold text-gray-900 mb-3">Sign In or Register to Get Started</h3>
+                <h3 className="text-3xl font-bold text-gray-900 mb-3">
+                  Sign In or Register to Get Started
+                </h3>
                 <p className="text-lg text-gray-800 mb-6">
                   Create your account in seconds and start building support for your cause
                 </p>

@@ -191,33 +191,30 @@ export function generateCacheKey(request: Request, prefix: string = 'api'): stri
   const url = new URL(request.url)
   const path = url.pathname
   const searchParams = url.searchParams
-  
+
   // Sort search params for consistent cache keys
   const params: [string, string][] = []
   searchParams.forEach((value, key) => {
     params.push([key, value])
   })
-  
+
   const sortedParams = params
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([key, value]) => `${key}=${value}`)
     .join('&')
-  
+
   const cacheKey = `${prefix}:${path}${sortedParams ? `?${sortedParams}` : ''}`
   return cacheKey
 }
 
-export async function getCachedData<T>(
-  cacheKey: string,
-  kv: KVNamespace
-): Promise<T | null> {
+export async function getCachedData<T>(cacheKey: string, kv: KVNamespace): Promise<T | null> {
   try {
     console.log(`🔍 Checking KV for key: ${cacheKey}`)
     if (!kv) {
       console.error(`🚨 KV namespace is undefined for key: ${cacheKey}`)
       return null
     }
-    
+
     const cached = await kv.get(cacheKey, 'json')
     if (cached !== null) {
       console.log(`🎯 Cache HIT for key: ${cacheKey}`)
@@ -246,12 +243,13 @@ export async function setCachedData<T>(
     const serializedData = JSON.stringify(data)
     const dataSize = new Blob([serializedData]).size
     console.log(`📏 Data size: ${dataSize} bytes for key: ${cacheKey}`)
-    
-    if (dataSize > 25 * 1024 * 1024) { // 25MB limit
+
+    if (dataSize > 25 * 1024 * 1024) {
+      // 25MB limit
       console.warn(`⚠️ Data too large for KV storage: ${dataSize} bytes for key: ${cacheKey}`)
       return
     }
-    
+
     console.log(`🔄 Putting data in KV for key: ${cacheKey}`)
     await kv.put(cacheKey, serializedData, {
       expirationTtl: ttlSeconds,
@@ -266,24 +264,23 @@ export async function setCachedData<T>(
   }
 }
 
-export async function invalidateCachePattern(
-  pattern: string,
-  kv: KVNamespace
-): Promise<void> {
+export async function invalidateCachePattern(pattern: string, kv: KVNamespace): Promise<void> {
   try {
     // List keys matching the pattern
     const keys = await kv.list({ prefix: pattern })
-    
+
     if (keys.keys.length > 0) {
-      console.log(`🗑️ Cache INVALIDATE: Found ${keys.keys.length} keys matching pattern "${pattern}"`)
-      
+      console.log(
+        `🗑️ Cache INVALIDATE: Found ${keys.keys.length} keys matching pattern "${pattern}"`
+      )
+
       // Delete all matching keys
       const deletePromises = keys.keys.map(key => {
         console.log(`🗑️ Deleting cache key: ${key.name}`)
         return kv.delete(key.name)
       })
       await Promise.all(deletePromises)
-      
+
       console.log(`✅ Cache INVALIDATE: Successfully deleted ${keys.keys.length} keys`)
     } else {
       console.log(`ℹ️ Cache INVALIDATE: No keys found matching pattern "${pattern}"`)
@@ -300,19 +297,18 @@ export async function getOrSetCache<T>(
   dataFetcher: () => Promise<T>,
   ttlSeconds: number = 300
 ): Promise<T> {
-  
   // Try to get from cache first
   const cached = await getCachedData<T>(cacheKey, kv)
   if (cached !== null) {
     return cached
   }
-  
+
   // If not in cache, fetch the data
   const startTime = Date.now()
   const data = await dataFetcher()
   const fetchTime = Date.now() - startTime
   console.log(`📊 Database query completed in ${fetchTime}ms for key: ${cacheKey}`)
-  
+
   // Store in cache for next time (temporarily await to debug issues)
   console.log(`🔄 Attempting to cache data for key: ${cacheKey}`)
   try {
@@ -321,7 +317,7 @@ export async function getOrSetCache<T>(
   } catch (error) {
     console.error(`❌ Failed to cache data for key ${cacheKey}:`, error)
   }
-  
+
   return data
 }
 
@@ -341,12 +337,12 @@ export async function getAuthenticatedUser(
     // Create a session request to get the current user
     const url = new URL(request.url)
     const sessionUrl = new URL('/auth/session', url.origin)
-    
+
     // Create a new request for the session endpoint with the same cookies
     const sessionRequest = new Request(sessionUrl.toString(), {
       method: 'GET',
       headers: {
-        'Cookie': request.headers.get('Cookie') || '',
+        Cookie: request.headers.get('Cookie') || '',
         'User-Agent': request.headers.get('User-Agent') || '',
       },
     })
@@ -354,13 +350,13 @@ export async function getAuthenticatedUser(
     // Get session from Auth.js
     const authConfig = createAuthConfig(env)
     const response = await Auth(sessionRequest, authConfig)
-    
+
     if (!response.ok) {
       return null
     }
 
-    const session = await response.json() as { user?: AuthenticatedUser }
-    
+    const session = (await response.json()) as { user?: AuthenticatedUser }
+
     if (!session?.user?.id) {
       return null
     }
@@ -382,13 +378,13 @@ export async function requireAuthentication(
   env: Env
 ): Promise<{ user: AuthenticatedUser } | Response> {
   const user = await getAuthenticatedUser(request, env)
-  
+
   if (!user) {
     const corsHeaders = getCorsHeaders(request, env)
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: 'Authentication required',
-        message: 'You must be signed in to perform this action'
+        message: 'You must be signed in to perform this action',
       }),
       {
         status: 401,
@@ -409,37 +405,34 @@ export async function requirePetitionOwnership(
   petitionId: number
 ): Promise<{ user: AuthenticatedUser } | Response> {
   const authResult = await requireAuthentication(request, env)
-  
+
   if (authResult instanceof Response) {
     return authResult
   }
 
   const { user } = authResult
   const db = new DatabaseService(env.DB)
-  
+
   try {
     const petition = await db.getPetitionById(petitionId)
-    
+
     if (!petition) {
       const corsHeaders = getCorsHeaders(request, env)
-      return new Response(
-        JSON.stringify({ error: 'Petition not found' }),
-        {
-          status: 404,
-          headers: {
-            ...corsHeaders,
-            'Content-Type': 'application/json',
-          },
-        }
-      )
+      return new Response(JSON.stringify({ error: 'Petition not found' }), {
+        status: 404,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+        },
+      })
     }
 
     if (petition.created_by !== user.id) {
       const corsHeaders = getCorsHeaders(request, env)
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'Forbidden',
-          message: 'You can only modify petitions you created'
+          message: 'You can only modify petitions you created',
         }),
         {
           status: 403,
@@ -455,15 +448,12 @@ export async function requirePetitionOwnership(
   } catch (error) {
     console.error('Petition ownership check error:', error)
     const corsHeaders = getCorsHeaders(request, env)
-    return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
-      {
-        status: 500,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json',
-        },
-      }
-    )
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+      status: 500,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json',
+      },
+    })
   }
 }

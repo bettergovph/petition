@@ -1,10 +1,10 @@
 import type { Env, EventContext } from '../../../_shared/types'
-import { 
-  handleCORS, 
-  createSuccessResponse, 
+import {
+  handleCORS,
+  createSuccessResponse,
   createCachedErrorResponse,
   getDbService,
-  invalidateCachePattern
+  invalidateCachePattern,
 } from '../../../_shared/utils'
 
 export const onRequest = async (context: EventContext<Env>): Promise<Response> => {
@@ -22,19 +22,19 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
     if (context.request.method === 'POST') {
       // Unpublish petition by setting published_at to NULL
       await db.unpublishPetition(petitionId)
-      
+
       // Get updated petition
       const updatedPetition = await db.getPetitionById(petitionId)
-      
+
       if (!updatedPetition) {
         return createCachedErrorResponse('Petition not found', context.request, context.env, 404)
       }
-      
+
       // Invalidate all petition caches when a petition is unpublished
       console.log(`📤 Petition ${petitionId} unpublished - invalidating petition caches`)
       await invalidateCachePattern('petitions:', context.env.CACHE)
       await invalidateCachePattern('petition:', context.env.CACHE)
-      
+
       return createSuccessResponse(updatedPetition)
     }
 
