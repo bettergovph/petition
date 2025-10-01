@@ -33,7 +33,6 @@ export async function onRequest(context: EventContext<Env>): Promise<Response> {
       },
     })
 
-
     return newResponse
   } catch (error) {
     console.error('Auth error:', error)

@@ -1,4 +1,4 @@
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/hooks/useAuthHook'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { SiGoogle, SiFacebook } from '@icons-pack/react-simple-icons'

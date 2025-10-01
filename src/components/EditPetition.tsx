@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Card } from './ui/card'
@@ -8,7 +8,7 @@ import { Badge } from './ui/badge'
 import { petitionApi, categoryApi, ApiError } from '../services/api'
 import type { Category, PetitionWithDetails } from '../types/api'
 import MDEditor, { commands } from '@uiw/react-md-editor'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../hooks/useAuthHook'
 import { ArrowLeft, Save, Trash2, AlertCircle, Eye } from 'lucide-react'
 
 interface EditPetitionFormData {
@@ -44,7 +44,7 @@ export default function EditPetition() {
     targetCount: 1000,
     imageUrl: '',
     categories: [],
-    status: 'active'
+    status: 'active',
   })
 
   const [categories, setCategories] = useState<Category[]>([])
@@ -57,18 +57,7 @@ export default function EditPetition() {
   const [isUnpublishing, setIsUnpublishing] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
 
-  // Load petition and categories on component mount
-  useEffect(() => {
-    if (slug) {
-      loadPetitionData()
-    }
-  }, [slug])
-
-  useEffect(() => {
-    loadCategories()
-  }, [])
-
-  const loadPetitionData = async () => {
+  const loadPetitionData = useCallback(async () => {
     if (!slug) return
 
     try {
@@ -91,7 +80,7 @@ export default function EditPetition() {
         targetCount: petitionData.target_count,
         imageUrl: petitionData.image_url || '',
         categories: petitionData.categories?.map(cat => cat.id) || [],
-        status: petitionData.status
+        status: petitionData.status,
       })
     } catch (error) {
       console.error('Failed to load petition:', error)
@@ -99,7 +88,18 @@ export default function EditPetition() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [slug, status, session?.user?.id, navigate])
+
+  // Load petition and categories on component mount
+  useEffect(() => {
+    if (slug) {
+      loadPetitionData()
+    }
+  }, [slug, loadPetitionData])
+
+  useEffect(() => {
+    loadCategories()
+  }, [])
 
   const loadCategories = async () => {
     try {
@@ -114,7 +114,12 @@ export default function EditPetition() {
         { id: 3, name: 'Healthcare', description: 'Healthcare access', created_at: '' },
         { id: 4, name: 'Social Justice', description: 'Social equality', created_at: '' },
         { id: 5, name: 'Transportation', description: 'Public transportation', created_at: '' },
-        { id: 6, name: 'Local Government', description: 'Local government policies', created_at: '' },
+        {
+          id: 6,
+          name: 'Local Government',
+          description: 'Local government policies',
+          created_at: '',
+        },
         { id: 7, name: 'Animal Rights', description: 'Animal welfare', created_at: '' },
         { id: 8, name: 'Technology', description: 'Technology policies', created_at: '' },
       ])
@@ -298,7 +303,7 @@ export default function EditPetition() {
           location: formData.type === 'local' ? formData.location : undefined,
           target_count: formData.targetCount,
           category_ids: formData.categories,
-          status: formData.status
+          status: formData.status,
           // Explicitly NOT including image_url to preserve existing image
         }
 
@@ -343,7 +348,10 @@ export default function EditPetition() {
           <Card className="max-w-md mx-auto p-8 text-center">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Access Denied</h2>
             <p className="text-gray-800 mb-6">You can only edit petitions that you created.</p>
-            <Button onClick={() => navigate('/profile')} className="bg-blue-600 hover:bg-blue-700 text-white">
+            <Button
+              onClick={() => navigate('/profile')}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
               Go to Profile
             </Button>
           </Card>
@@ -366,9 +374,7 @@ export default function EditPetition() {
             Back to Petition
           </Button>
           <h1 className="text-3xl font-bold text-gray-900">Edit Petition</h1>
-          <p className="mt-2 text-lg text-gray-800">
-            Update your petition details and settings
-          </p>
+          <p className="mt-2 text-lg text-gray-800">Update your petition details and settings</p>
         </div>
 
         {/* Publication Status Banner */}
@@ -382,8 +388,8 @@ export default function EditPetition() {
                     Petition Not Published
                   </h3>
                   <p className="text-sm text-amber-700 mb-3">
-                    Your petition is currently in draft mode and not visible to the public. 
-                    After making your changes, remember to publish it so people can find and sign it.
+                    Your petition is currently in draft mode and not visible to the public. After
+                    making your changes, remember to publish it so people can find and sign it.
                   </p>
                   <div className="flex gap-2">
                     <Button
@@ -424,7 +430,7 @@ export default function EditPetition() {
                 Petition Status
               </label>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                {['active', 'completed', 'closed'].map((statusOption) => (
+                {['active', 'completed', 'closed'].map(statusOption => (
                   <Card
                     key={statusOption}
                     className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
@@ -432,14 +438,21 @@ export default function EditPetition() {
                         ? 'border-2 border-blue-500 bg-blue-50'
                         : 'border border-gray-300 hover:border-gray-400'
                     }`}
-                    onClick={() => handleInputChange('status', statusOption as 'active' | 'completed' | 'closed')}
+                    onClick={() =>
+                      handleInputChange('status', statusOption as 'active' | 'completed' | 'closed')
+                    }
                   >
                     <div className="p-4">
                       <div className="flex items-center">
                         <input
                           type="radio"
                           checked={formData.status === statusOption}
-                          onChange={() => handleInputChange('status', statusOption as 'active' | 'completed' | 'closed')}
+                          onChange={() =>
+                            handleInputChange(
+                              'status',
+                              statusOption as 'active' | 'completed' | 'closed'
+                            )
+                          }
                           className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
                         <label className="ml-3 text-lg font-medium text-gray-900 capitalize">
@@ -483,9 +496,7 @@ export default function EditPetition() {
                         {t('create.local')}
                       </label>
                     </div>
-                    <p className="mt-2 text-sm text-gray-800">
-                      {t('create.localDescription')}
-                    </p>
+                    <p className="mt-2 text-sm text-gray-800">{t('create.localDescription')}</p>
                   </div>
                 </Card>
 
@@ -511,9 +522,7 @@ export default function EditPetition() {
                         {t('create.national')}
                       </label>
                     </div>
-                    <p className="mt-2 text-sm text-gray-800">
-                      {t('create.nationalDescription')}
-                    </p>
+                    <p className="mt-2 text-sm text-gray-800">{t('create.nationalDescription')}</p>
                   </div>
                 </Card>
               </div>
@@ -569,7 +578,8 @@ export default function EditPetition() {
                 {t('create.petitionDescription')} *
               </label>
               <p className="text-sm text-gray-500 mb-4">
-                Explain the issue, why it matters, and what action you want taken. You can use markdown formatting for better presentation.
+                Explain the issue, why it matters, and what action you want taken. You can use
+                markdown formatting for better presentation.
               </p>
               <div
                 className={`rounded-md overflow-hidden ${errors.description ? 'ring-2 ring-red-500' : ''}`}
@@ -590,12 +600,12 @@ export default function EditPetition() {
                     commands.italic,
                     commands.unorderedListCommand,
                     commands.orderedListCommand,
-                    commands.link
+                    commands.link,
                   ]}
-                  style={{ 
-                    border: '1px solid #ccc', 
+                  style={{
+                    border: '1px solid #ccc',
                     borderRadius: '0',
-                    backgroundColor: 'white'
+                    backgroundColor: 'white',
                   }}
                   height={300}
                 />
@@ -634,20 +644,36 @@ export default function EditPetition() {
 
               <div className="flex flex-col space-y-4">
                 <div className="flex items-center justify-center w-full">
-                  <label htmlFor="image-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 hover:border-gray-400">
+                  <label
+                    htmlFor="image-upload"
+                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 hover:border-gray-400"
+                  >
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                       {formData.imageUrl ? (
                         <div className="text-center">
                           <p className="text-sm text-green-600 font-medium">✓ Image uploaded</p>
-                          <p className="text-xs text-gray-500">{imageState.file?.name || 'Current image'}</p>
+                          <p className="text-xs text-gray-500">
+                            {imageState.file?.name || 'Current image'}
+                          </p>
                         </div>
                       ) : (
                         <>
-                          <svg className="w-8 h-8 mb-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          <svg
+                            className="w-8 h-8 mb-2 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                            />
                           </svg>
                           <p className="mb-2 text-sm text-gray-500">
-                            <span className="font-semibold">{t('create.chooseImage')}</span> or drag and drop
+                            <span className="font-semibold">{t('create.chooseImage')}</span> or drag
+                            and drop
                           </p>
                           <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
                         </>
@@ -682,8 +708,18 @@ export default function EditPetition() {
                       }}
                       className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
                       </svg>
                     </button>
                   </div>
@@ -727,7 +763,7 @@ export default function EditPetition() {
               {/* Category Dropdown */}
               <div className="relative">
                 <select
-                  onChange={(e) => {
+                  onChange={e => {
                     const categoryId = parseInt(e.target.value)
                     if (categoryId && !formData.categories.includes(categoryId)) {
                       handleCategoryToggle(categoryId)
@@ -743,8 +779,7 @@ export default function EditPetition() {
                       <option key={category.id} value={category.id}>
                         {category.name}
                       </option>
-                    ))
-                  }
+                    ))}
                 </select>
               </div>
 
@@ -767,8 +802,18 @@ export default function EditPetition() {
                             onClick={() => handleCategoryToggle(categoryId)}
                             className="ml-1 hover:bg-gray-300 rounded-full p-0.5"
                           >
-                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            <svg
+                              className="w-3 h-3"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
                             </svg>
                           </button>
                         </Badge>
@@ -822,7 +867,11 @@ export default function EditPetition() {
                   <Trash2 className="w-4 h-4" />
                   Delete Petition
                 </Button>
-                <Button type="submit" disabled={isSubmitting || isDeleting || isUnpublishing || isPublishing} className="min-w-[120px] flex items-center gap-2">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || isDeleting || isUnpublishing || isPublishing}
+                  className="min-w-[120px] flex items-center gap-2"
+                >
                   <Save className="w-4 h-4" />
                   {isSubmitting ? 'Saving...' : 'Save Changes'}
                 </Button>
@@ -836,19 +885,19 @@ export default function EditPetition() {
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Delete Petition
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Delete Petition</h3>
             <p className="text-gray-800 mb-4">
-              This action cannot be undone. This will permanently delete the petition and all associated signatures.
+              This action cannot be undone. This will permanently delete the petition and all
+              associated signatures.
             </p>
             <p className="text-sm text-gray-800 mb-4">
-              To confirm deletion, please type the petition title: <strong>"{petition?.title}"</strong>
+              To confirm deletion, please type the petition title:{' '}
+              <strong>"{petition?.title}"</strong>
             </p>
             <Input
               type="text"
               value={deleteConfirmTitle}
-              onChange={(e) => setDeleteConfirmTitle(e.target.value)}
+              onChange={e => setDeleteConfirmTitle(e.target.value)}
               placeholder="Type petition title here"
               className="mb-4"
             />

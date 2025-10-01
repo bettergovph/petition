@@ -54,16 +54,16 @@ Example:
 ### Using translations in code
 
 ```tsx
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'
 
-const { t } = useTranslation('page-name');
-return <h1>{t('title')}</h1>;
+const { t } = useTranslation('page-name')
+return <h1>{t('title')}</h1>
 ```
 
 ### Arrays
 
 ```tsx
-const items = t('items', { returnObjects: true }) as string[];
+const items = t('items', { returnObjects: true }) as string[]
 ```
 
 ### Adding new feature with translation

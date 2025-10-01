@@ -1,7 +1,7 @@
 export interface LanguageInfo {
-  code: LanguageType;
-  name: string;
-  nativeName: string;
+  code: LanguageType
+  name: string
+  nativeName: string
 }
 
 export type LanguageType =
@@ -17,7 +17,7 @@ export type LanguageType =
   | 'pag' // Pangasinan
   | 'pam' // Kapampangan
   | 'tsg' // Tausug
-  | 'war'; // Waray
+  | 'war' // Waray
 
 export const LANGUAGES: Record<LanguageType, LanguageInfo> = {
   en: { code: 'en', name: 'English', nativeName: 'English' },
@@ -33,6 +33,6 @@ export const LANGUAGES: Record<LanguageType, LanguageInfo> = {
   pam: { code: 'pam', name: 'Kapampangan', nativeName: 'Kapampangan' },
   tsg: { code: 'tsg', name: 'Tausug', nativeName: 'Bahasa Sūg' },
   war: { code: 'war', name: 'Waray', nativeName: 'Waray-Waray' },
-};
+}
 
-export const DEFAULT_LANGUAGE: LanguageType = 'en';
+export const DEFAULT_LANGUAGE: LanguageType = 'en'

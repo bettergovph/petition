@@ -1,5 +1,11 @@
 import type { Env, EventContext } from '../../../_shared/types'
-import { handleCORS, createErrorResponse, createSuccessResponse, getDbService, type AuthenticatedUser } from '../../../_shared/utils'
+import {
+  handleCORS,
+  createErrorResponse,
+  createSuccessResponse,
+  getDbService,
+  type AuthenticatedUser,
+} from '../../../_shared/utils'
 
 export const onRequest = async (context: EventContext<Env>): Promise<Response> => {
   const corsResponse = handleCORS(context.request, context.env)
@@ -15,7 +21,7 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
       if (!authenticatedUser) {
         return createErrorResponse('Authentication required', 401)
       }
-      
+
       const petitions = await db.getUserPetitions(userId)
       return createSuccessResponse(petitions)
     }

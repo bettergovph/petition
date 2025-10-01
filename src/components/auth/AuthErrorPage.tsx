@@ -1,5 +1,5 @@
 import { useSearchParams, Link } from 'react-router-dom'
-import { useModal } from '../../contexts/ModalContext'
+import { useModal } from '../../contexts/useModal'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle, Home, LogIn } from 'lucide-react'

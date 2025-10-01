@@ -5,6 +5,7 @@ This document explains the R2 bucket integration for storing petition images ins
 ## Overview
 
 The system now uses **Cloudflare R2** for efficient image storage with the following benefits:
+
 - **Better Performance**: No more large base64 strings in database
 - **Scalable Storage**: Unlimited image storage capacity
 - **CDN Integration**: Fast global image delivery
@@ -85,11 +86,13 @@ wrangler tail
 Creates a petition with optional image upload.
 
 **Request:**
+
 - Method: `POST`
 - Content-Type: `multipart/form-data`
 - Body: FormData with petition data and optional `image` field
 
 **Response:**
+
 ```json
 {
   "id": 123,
@@ -104,6 +107,7 @@ Creates a petition with optional image upload.
 Updates a petition with optional image upload.
 
 **Validation:**
+
 - Max file size: 5MB
 - Allowed types: JPEG, PNG, WebP, GIF
 - Organized file structure: `petitions/{id}/image.{ext}`
@@ -123,7 +127,7 @@ formData.append('image', imageFile) // File object
 
 const response = await fetch('/api/petitions', {
   method: 'POST',
-  body: formData
+  body: formData,
 })
 
 // Update petition with new image
@@ -133,7 +137,7 @@ updateFormData.append('image', newImageFile)
 
 const updateResponse = await fetch(`/api/petitions/${petitionId}`, {
   method: 'PUT',
-  body: updateFormData
+  body: updateFormData,
 })
 ```
 
@@ -152,6 +156,7 @@ image_url: "https://images.petition.ph/petitions/123/image.jpg"
 ## File Organization Structure
 
 Images are stored with the following organized structure:
+
 ```
 petitions/{petition_id}/image.{extension}
 ```
@@ -159,6 +164,7 @@ petitions/{petition_id}/image.{extension}
 Example: `petitions/123/image.jpg`
 
 This ensures:
+
 - **Organization**: Each petition has its own folder
 - **Simplicity**: One image per petition with consistent naming
 - **Easy Management**: Clear folder structure for maintenance
@@ -167,12 +173,14 @@ This ensures:
 ## Security & Performance
 
 ### Security Features
+
 - **File Type Validation**: Only allows image files
 - **Size Limits**: Maximum 5MB per image
 - **Sanitized Filenames**: Prevents path traversal attacks
 - **CORS Protection**: Proper CORS headers
 
 ### Performance Optimizations
+
 - **CDN Caching**: 1-year cache headers for images
 - **Optimized Metadata**: Stores original filename and upload info
 - **Efficient Upload**: Direct browser-to-R2 upload
@@ -181,7 +189,9 @@ This ensures:
 ## Monitoring & Troubleshooting
 
 ### Logs
+
 The upload endpoint logs all operations:
+
 ```
 ✅ Image uploaded successfully: petition-1640995200000-abc123.jpg
 ❌ Image upload failed: File too large
@@ -227,6 +237,7 @@ If you have existing petitions with base64 images, you can migrate them:
 4. Clean up old base64 data
 
 Example migration script structure:
+
 ```typescript
 // 1. Get petitions with base64 images
 // 2. For each petition:
@@ -239,12 +250,14 @@ Example migration script structure:
 ## Cost Estimation
 
 Cloudflare R2 pricing (as of 2024):
+
 - **Storage**: $0.015/GB/month
 - **Class A Operations** (uploads): $4.50/million
 - **Class B Operations** (downloads): $0.36/million
 - **Data Transfer**: Free egress
 
 For a petition platform:
+
 - 1000 images (avg 500KB each) = 500MB = ~$0.008/month storage
 - 1000 uploads = ~$0.0045
 - 10,000 views = ~$0.0036
@@ -254,6 +267,7 @@ For a petition platform:
 ## Future Enhancements
 
 ### Potential Improvements
+
 1. **Image Optimization**: Automatic resizing and format conversion
 2. **Multiple Sizes**: Generate thumbnails and different resolutions
 3. **Image Processing**: Watermarks, compression, filters
@@ -261,6 +275,7 @@ For a petition platform:
 5. **Analytics**: Track image views and performance
 
 ### Advanced Features
+
 - **Direct Upload**: Browser-to-R2 with presigned URLs
 - **Image Variants**: Cloudflare Images integration
 - **Lazy Loading**: Progressive image loading
