@@ -17,7 +17,12 @@ import { onRequest as categoriesHandler } from './api/categories'
 import { onRequest as reportsHandler } from './api/reports'
 import { onRequest as adminReportsHandler } from './api/admin/reports'
 import { onRequest as authHandler } from './auth/[...auth]'
-import { getCorsHeaders, handleCORS, requireAuthentication, requirePetitionOwnership } from './_shared/utils'
+import {
+  getCorsHeaders,
+  handleCORS,
+  requireAuthentication,
+  requirePetitionOwnership,
+} from './_shared/utils'
 
 function createContext(
   request: Request,
@@ -79,7 +84,6 @@ export default {
         return await uptimeHandler(createContext(request, env))
       }
 
-
       if (path.match(/^\/api\/users\/[^/]+\/signatures$/)) {
         const params = parsePathParams(path, '/api/users/[id]/signatures')
         // Require authentication for user signatures
@@ -119,7 +123,7 @@ export default {
       if (path === '/api/petitions') {
         const url = new URL(request.url)
         const userId = url.searchParams.get('userId')
-        
+
         // Require authentication for POST (creating petitions) or GET with userId parameter
         if (request.method === 'POST' || userId) {
           const authResult = await requireAuthentication(request, env)

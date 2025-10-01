@@ -1,12 +1,12 @@
 import type { CreateSignatureInput } from '../../src/db/schemas/types'
 import type { Env, EventContext } from '../_shared/types'
-import { 
-  handleCORS, 
-  createErrorResponse, 
-  createSuccessResponse, 
+import {
+  handleCORS,
+  createErrorResponse,
+  createSuccessResponse,
   getDbService,
   invalidateCachePattern,
-  type AuthenticatedUser
+  type AuthenticatedUser,
 } from '../_shared/utils'
 
 export const onRequest = async (context: EventContext<Env>): Promise<Response> => {
@@ -15,29 +15,31 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
 
   try {
     const db = getDbService(context)
-    
+
     if (context.request.method === 'POST') {
       const signatureData: CreateSignatureInput = await context.request.json()
-      
+
       // Get authenticated user from context (set by router)
       const user = context.data.user as AuthenticatedUser
       if (!user) {
         return createErrorResponse('Authentication required', 401)
       }
-      
+
       // Ensure the signature is created for the authenticated user
       const signatureWithUser: CreateSignatureInput = {
         ...signatureData,
-        user_id: user.id
+        user_id: user.id,
       }
-      
+
       const signature = await db.createSignature(signatureWithUser)
-      
+
       // Invalidate petition caches when a new signature is created
       // This ensures petition counts are updated immediately
-      console.log(`✍️ New signature created for petition ${signatureData.petition_id} - invalidating petition caches`)
+      console.log(
+        `✍️ New signature created for petition ${signatureData.petition_id} - invalidating petition caches`
+      )
       await invalidateCachePattern('petitions:', context.env.CACHE)
-      
+
       return createSuccessResponse(signature)
     }
 

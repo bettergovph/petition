@@ -1,9 +1,9 @@
 import type { Env, EventContext } from '../../_shared/types'
-import { 
-  handleCORS, 
+import {
+  handleCORS,
   createCachedResponse,
   createCachedErrorResponse,
-  getDbService 
+  getDbService,
 } from '../../_shared/utils'
 
 export const onRequest = async (context: EventContext<Env>): Promise<Response> => {
@@ -13,7 +13,7 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
   try {
     const db = getDbService(context)
     const slug = context.params.slug
-    
+
     if (!slug || slug.trim() === '') {
       return createCachedErrorResponse('Invalid petition slug', context.request, context.env, 400)
     }

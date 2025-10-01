@@ -1,6 +1,6 @@
 /**
  * Email Encryption Utility
- * 
+ *
  * Uses AES-256-GCM encryption to securely encrypt/decrypt email addresses
  * before storing them in the database. This provides an additional layer
  * of security for user privacy.
@@ -29,7 +29,7 @@ export class EmailEncryption {
         name: 'PBKDF2',
         salt: encoder.encode('petition-email-salt'), // Static salt for consistency
         iterations: 100000,
-        hash: 'SHA-256'
+        hash: 'SHA-256',
       },
       keyMaterial,
       { name: this.ALGORITHM, length: this.KEY_LENGTH },
@@ -46,15 +46,11 @@ export class EmailEncryption {
       const key = await this.deriveKey(encryptionKey)
       const encoder = new TextEncoder()
       const data = encoder.encode(email)
-      
+
       // Generate random IV for each encryption
       const iv = crypto.getRandomValues(new Uint8Array(this.IV_LENGTH))
-      
-      const encrypted = await crypto.subtle.encrypt(
-        { name: this.ALGORITHM, iv },
-        key,
-        data
-      )
+
+      const encrypted = await crypto.subtle.encrypt({ name: this.ALGORITHM, iv }, key, data)
 
       // Combine IV and encrypted data
       const combined = new Uint8Array(iv.length + encrypted.byteLength)
@@ -75,7 +71,7 @@ export class EmailEncryption {
   static async decrypt(encryptedEmail: string, encryptionKey: string): Promise<string> {
     try {
       const key = await this.deriveKey(encryptionKey)
-      
+
       // Decode from base64
       const combined = new Uint8Array(
         atob(encryptedEmail)
@@ -87,11 +83,7 @@ export class EmailEncryption {
       const iv = combined.slice(0, this.IV_LENGTH)
       const encrypted = combined.slice(this.IV_LENGTH)
 
-      const decrypted = await crypto.subtle.decrypt(
-        { name: this.ALGORITHM, iv },
-        key,
-        encrypted
-      )
+      const decrypted = await crypto.subtle.decrypt({ name: this.ALGORITHM, iv }, key, encrypted)
 
       const decoder = new TextDecoder()
       return decoder.decode(decrypted)
@@ -157,14 +149,20 @@ export const emailUtils = {
   /**
    * Encrypts an email for database storage
    */
-  encryptForStorage: async (email: string, env?: { EMAIL_ENCRYPTION_KEY?: string }): Promise<string> => {
+  encryptForStorage: async (
+    email: string,
+    env?: { EMAIL_ENCRYPTION_KEY?: string }
+  ): Promise<string> => {
     return EmailEncryption.safeEncrypt(email, env?.EMAIL_ENCRYPTION_KEY)
   },
 
   /**
    * Decrypts an email from database storage
    */
-  decryptFromStorage: async (encryptedEmail: string, env?: { EMAIL_ENCRYPTION_KEY?: string }): Promise<string> => {
+  decryptFromStorage: async (
+    encryptedEmail: string,
+    env?: { EMAIL_ENCRYPTION_KEY?: string }
+  ): Promise<string> => {
     return EmailEncryption.safeDecrypt(encryptedEmail, env?.EMAIL_ENCRYPTION_KEY)
   },
 
@@ -173,5 +171,5 @@ export const emailUtils = {
    */
   isEncrypted: (email: string): boolean => {
     return EmailEncryption.isEncrypted(email)
-  }
+  },
 }

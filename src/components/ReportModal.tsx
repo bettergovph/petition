@@ -21,7 +21,13 @@ const REPORT_REASONS = [
   { value: 'other', label: 'Other (please describe)' },
 ]
 
-export default function ReportModal({ isOpen, onClose, onSubmit, itemType, itemTitle }: ReportModalProps) {
+export default function ReportModal({
+  isOpen,
+  onClose,
+  onSubmit,
+  itemType,
+  itemTitle,
+}: ReportModalProps) {
   const [selectedReason, setSelectedReason] = useState('')
   const [description, setDescription] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -29,7 +35,7 @@ export default function ReportModal({ isOpen, onClose, onSubmit, itemType, itemT
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!selectedReason) {
       setError('Please select a reason for reporting')
       return
@@ -73,13 +79,9 @@ export default function ReportModal({ isOpen, onClose, onSubmit, itemType, itemT
               <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">
-                Report {itemType}
-              </h2>
+              <h2 className="text-lg font-semibold text-gray-900">Report {itemType}</h2>
               {itemTitle && (
-                <p className="text-sm text-gray-600 truncate max-w-xs">
-                  "{itemTitle}"
-                </p>
+                <p className="text-sm text-gray-600 truncate max-w-xs">"{itemTitle}"</p>
               )}
             </div>
           </div>
@@ -96,11 +98,12 @@ export default function ReportModal({ isOpen, onClose, onSubmit, itemType, itemT
         <form onSubmit={handleSubmit} className="p-6">
           <div className="mb-6">
             <p className="text-sm text-gray-700 mb-4">
-              Help us maintain a safe and respectful community. Please select the reason for reporting this {itemType}:
+              Help us maintain a safe and respectful community. Please select the reason for
+              reporting this {itemType}:
             </p>
 
             <div className="space-y-2">
-              {REPORT_REASONS.map((reason) => (
+              {REPORT_REASONS.map(reason => (
                 <label
                   key={reason.value}
                   className={`flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${
@@ -114,14 +117,16 @@ export default function ReportModal({ isOpen, onClose, onSubmit, itemType, itemT
                     name="reason"
                     value={reason.value}
                     checked={selectedReason === reason.value}
-                    onChange={(e) => setSelectedReason(e.target.value)}
+                    onChange={e => setSelectedReason(e.target.value)}
                     className="sr-only"
                   />
-                  <div className={`w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center ${
-                    selectedReason === reason.value
-                      ? 'border-red-500 bg-red-500'
-                      : 'border-gray-300'
-                  }`}>
+                  <div
+                    className={`w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center ${
+                      selectedReason === reason.value
+                        ? 'border-red-500 bg-red-500'
+                        : 'border-gray-300'
+                    }`}
+                  >
                     {selectedReason === reason.value && (
                       <div className="w-2 h-2 bg-white rounded-full" />
                     )}
@@ -140,7 +145,7 @@ export default function ReportModal({ isOpen, onClose, onSubmit, itemType, itemT
             <textarea
               id="description"
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={e => setDescription(e.target.value)}
               placeholder="Please provide any additional context that would help us understand the issue..."
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 resize-none"
               rows={3}
@@ -182,7 +187,8 @@ export default function ReportModal({ isOpen, onClose, onSubmit, itemType, itemT
           </div>
 
           <p className="text-xs text-gray-500 mt-4 text-center">
-            Reports are reviewed by our moderation team. False reports may result in account restrictions.
+            Reports are reviewed by our moderation team. False reports may result in account
+            restrictions.
           </p>
         </form>
       </div>

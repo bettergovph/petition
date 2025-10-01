@@ -249,15 +249,15 @@ export class DatabaseService {
       WHERE id = ?
     `)
     await stmt.bind(id).run()
-    
+
     // Return the updated petition
     const selectStmt = this.db.prepare('SELECT * FROM petitions WHERE id = ?')
     const result = await selectStmt.bind(id).first<Petition>()
-    
+
     if (!result) {
       throw new Error('Petition not found after publishing')
     }
-    
+
     return result
   }
 
@@ -343,14 +343,16 @@ export class DatabaseService {
       VALUES (?, ?, ?, ?, ?)
       RETURNING *
     `)
-    
-    const result = await stmt.bind(
-      signatureData.petition_id,
-      signatureData.user_id,
-      signatureData.comment || null,
-      signatureData.anonymous || false,
-      signatureData.ip_address || null
-    ).first<Signature>()
+
+    const result = await stmt
+      .bind(
+        signatureData.petition_id,
+        signatureData.user_id,
+        signatureData.comment || null,
+        signatureData.anonymous || false,
+        signatureData.ip_address || null
+      )
+      .first<Signature>()
 
     if (!result) {
       throw new Error('Failed to create signature')
@@ -421,13 +423,15 @@ export class DatabaseService {
   async deletePetition(id: number): Promise<void> {
     // Delete in order to respect foreign key constraints
     // 1. Delete petition categories
-    const deleteCategoriesStmt = this.db.prepare('DELETE FROM petition_categories WHERE petition_id = ?')
+    const deleteCategoriesStmt = this.db.prepare(
+      'DELETE FROM petition_categories WHERE petition_id = ?'
+    )
     await deleteCategoriesStmt.bind(id).run()
-    
+
     // 2. Delete signatures
     const deleteSignaturesStmt = this.db.prepare('DELETE FROM signatures WHERE petition_id = ?')
     await deleteSignaturesStmt.bind(id).run()
-    
+
     // 3. Delete the petition itself
     const deletePetitionStmt = this.db.prepare('DELETE FROM petitions WHERE id = ?')
     await deletePetitionStmt.bind(id).run()
@@ -446,14 +450,16 @@ export class DatabaseService {
       )
       VALUES (?, ?, ?, ?, ?)
     `)
-    
-    const result = await stmt.bind(
-      reportData.reporter_user_id,
-      reportData.reported_item_type,
-      reportData.reported_item_id,
-      reportData.report_reason,
-      reportData.report_description || null
-    ).run()
+
+    const result = await stmt
+      .bind(
+        reportData.reporter_user_id,
+        reportData.reported_item_type,
+        reportData.reported_item_id,
+        reportData.report_reason,
+        reportData.report_description || null
+      )
+      .run()
 
     if (!result.success) {
       throw new Error('Failed to create user report')
@@ -474,8 +480,8 @@ export class DatabaseService {
   }
 
   async getAllUserReports(
-    limit: number = 50, 
-    offset: number = 0, 
+    limit: number = 50,
+    offset: number = 0,
     status?: 'pending' | 'reviewed' | 'resolved' | 'dismissed'
   ): Promise<UserReport[]> {
     let query = `
@@ -484,55 +490,61 @@ export class DatabaseService {
       FROM user_reports ur
       LEFT JOIN users u ON ur.reporter_user_id = u.id
     `
-    
-    const params: any[] = []
-    
+
+    const params: (string | number)[] = []
+
     if (status) {
       query += ' WHERE ur.status = ?'
       params.push(status)
     }
-    
+
     query += ' ORDER BY ur.created_at DESC LIMIT ? OFFSET ?'
     params.push(limit, offset)
-    
+
     const stmt = this.db.prepare(query)
     const result = await stmt.bind(...params).all<UserReport>()
     return result.results || []
   }
 
-  async updateUserReport(id: number, updateData: UpdateUserReportInput): Promise<UserReport | null> {
+  async updateUserReport(
+    id: number,
+    updateData: UpdateUserReportInput
+  ): Promise<UserReport | null> {
     const setParts: string[] = []
-    const params: any[] = []
-    
+    const params: (string | number)[] = []
+
     if (updateData.status !== undefined) {
       setParts.push('status = ?')
       params.push(updateData.status)
     }
-    
+
     if (updateData.admin_notes !== undefined) {
       setParts.push('admin_notes = ?')
       params.push(updateData.admin_notes)
     }
-    
+
     if (updateData.reviewed_by !== undefined) {
       setParts.push('reviewed_by = ?, reviewed_at = CURRENT_TIMESTAMP')
       params.push(updateData.reviewed_by)
     }
-    
+
     if (setParts.length === 0) {
       throw new Error('No update data provided')
     }
-    
+
     const query = `UPDATE user_reports SET ${setParts.join(', ')} WHERE id = ?`
     params.push(id)
-    
+
     const stmt = this.db.prepare(query)
     await stmt.bind(...params).run()
-    
+
     return await this.getUserReportById(id)
   }
 
-  async getUserReportsByItem(itemType: 'petition' | 'signature', itemId: number): Promise<UserReport[]> {
+  async getUserReportsByItem(
+    itemType: 'petition' | 'signature',
+    itemId: number
+  ): Promise<UserReport[]> {
     const stmt = this.db.prepare(`
       SELECT ur.*, 
              u.name as reporter_name
@@ -541,9 +553,8 @@ export class DatabaseService {
       WHERE ur.reported_item_type = ? AND ur.reported_item_id = ?
       ORDER BY ur.created_at DESC
     `)
-    
+
     const result = await stmt.bind(itemType, itemId).all<UserReport>()
     return result.results || []
   }
-
 }

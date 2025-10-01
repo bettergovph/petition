@@ -10,15 +10,12 @@ interface PetitionCardProps {
   showTypeBadge?: boolean
 }
 
-export default function PetitionCard({ 
-  petition, 
-  showTypeBadge = false 
-}: PetitionCardProps) {
+export default function PetitionCard({ petition, showTypeBadge = false }: PetitionCardProps) {
   const { hasSignedPetition, isAuthenticated } = useUserSignatures()
-  
+
   const progressPercentage = Math.round((petition.current_count / petition.target_count) * 100)
   const primaryCategory = petition.categories[0]?.name || 'General'
-  
+
   // Calculate days left (60 days from creation)
   const calculateDaysLeft = (createdAt: string): number => {
     const created = new Date(createdAt)
@@ -26,7 +23,7 @@ export default function PetitionCard({
     const daysSinceCreated = Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24))
     return Math.max(0, 60 - daysSinceCreated)
   }
-  
+
   const daysLeft = calculateDaysLeft(petition.created_at)
   const hasSigned = isAuthenticated && hasSignedPetition(petition.id)
 
@@ -40,24 +37,26 @@ export default function PetitionCard({
           </div>
         </div>
       )}
-      
-      
+
       <CardHeader className="p-6 pb-4">
         {/* Category and location badges */}
-         <div className="mb-3 flex gap-2">
-           <span className="inline-block bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1.5 rounded">
-             {primaryCategory}
-           </span>
-           {showTypeBadge && (
-             <span className="inline-block border border-gray-400 text-gray-700 text-sm px-3 py-1 rounded">
-               {petition.type}
-             </span>
-           )}
-         </div>
+        <div className="mb-3 flex gap-2">
+          <span className="inline-block bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1.5 rounded">
+            {primaryCategory}
+          </span>
+          {showTypeBadge && (
+            <span className="inline-block border border-gray-400 text-gray-700 text-sm px-3 py-1 rounded">
+              {petition.type}
+            </span>
+          )}
+        </div>
 
         {/* Petition title */}
         <CardTitle className="text-2xl font-bold leading-tight mb-4 text-gray-900">
-          <Link to={`/petition/${petition.slug}`} className="hover:text-blue-600 transition-colors no-underline">
+          <Link
+            to={`/petition/${petition.slug}`}
+            className="hover:text-blue-600 transition-colors no-underline"
+          >
             {petition.title}
           </Link>
         </CardTitle>
@@ -91,18 +90,16 @@ export default function PetitionCard({
                 of {petition.target_count.toLocaleString()} signatures
               </span>
             </div>
-            
+
             <div className="w-full bg-gray-200 h-3 mb-2">
               <div
                 className="bg-green-600 h-3 transition-all duration-300"
                 style={{ width: `${Math.min(progressPercentage, 100)}%` }}
               />
             </div>
-            
+
             <div className="flex justify-between items-center">
-              <p className="text-sm text-gray-600">
-                {progressPercentage}% complete
-              </p>
+              <p className="text-sm text-gray-600">{progressPercentage}% complete</p>
               <p className="text-sm text-gray-600">
                 <strong>{daysLeft}</strong> days left
               </p>
