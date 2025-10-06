@@ -17,14 +17,14 @@ export default function FeaturedPetitions() {
       try {
         // Get petitions with highest signature percentages
         const allPetitions = await petitionApi.getAll({ limit: 50 })
-        
+
         // Sort by completion percentage and current signature count
         const featured = allPetitions
           .filter(p => p.current_count > 0) // Only petitions with signatures
           .sort((a, b) => {
             const aPercentage = (a.current_count / a.target_count) * 100
             const bPercentage = (b.current_count / b.target_count) * 100
-            
+
             // Primary sort by percentage, secondary by signature count
             if (Math.abs(aPercentage - bPercentage) < 5) {
               return b.current_count - a.current_count
@@ -63,7 +63,7 @@ export default function FeaturedPetitions() {
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+            {[1, 2, 3, 4, 5, 6].map(i => (
               <Card key={i} className="animate-pulse">
                 <CardHeader>
                   <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
@@ -121,7 +121,9 @@ export default function FeaturedPetitions() {
                   <CardHeader>
                     <div className="flex justify-between items-start mb-2">
                       <div className="flex gap-2 flex-wrap">
-                        <Badge className="bg-blue-600">{petitions[0].categories[0]?.name || 'General'}</Badge>
+                        <Badge className="bg-blue-600">
+                          {petitions[0].categories[0]?.name || 'General'}
+                        </Badge>
                         <Badge variant={petitions[0].type === 'local' ? 'outline' : 'default'}>
                           {petitions[0].type}
                         </Badge>
@@ -132,7 +134,10 @@ export default function FeaturedPetitions() {
                       </span>
                     </div>
                     <CardTitle className="text-2xl font-bold mb-2">
-                      <Link to={`/petition/${petitions[0].slug}`} className="hover:text-blue-600 transition-colors">
+                      <Link
+                        to={`/petition/${petitions[0].slug}`}
+                        className="hover:text-blue-600 transition-colors"
+                      >
                         {petitions[0].title}
                       </Link>
                     </CardTitle>
@@ -142,22 +147,25 @@ export default function FeaturedPetitions() {
                     {petitions[0].type === 'local' && petitions[0].location && (
                       <p className="text-sm text-blue-600 mb-4">📍 {petitions[0].location}</p>
                     )}
-                    
+
                     <div className="mb-6">
                       <div className="flex justify-between text-sm text-gray-800 mb-2">
-                        <span className="font-semibold">{petitions[0].current_count.toLocaleString()} signatures</span>
+                        <span className="font-semibold">
+                          {petitions[0].current_count.toLocaleString()} signatures
+                        </span>
                         <span>{petitions[0].target_count.toLocaleString()} target</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-3">
                         <div
                           className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300"
-                          style={{ 
-                            width: `${Math.min(Math.round((petitions[0].current_count / petitions[0].target_count) * 100), 100)}%` 
+                          style={{
+                            width: `${Math.min(Math.round((petitions[0].current_count / petitions[0].target_count) * 100), 100)}%`,
                           }}
                         />
                       </div>
                       <div className="text-sm text-gray-500 mt-1">
-                        {Math.round((petitions[0].current_count / petitions[0].target_count) * 100)}% complete
+                        {Math.round((petitions[0].current_count / petitions[0].target_count) * 100)}
+                        % complete
                       </div>
                     </div>
 
@@ -174,11 +182,7 @@ export default function FeaturedPetitions() {
             {/* Other featured petitions */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {petitions.slice(1).map(petition => (
-                <PetitionCard 
-                  key={petition.id} 
-                  petition={petition} 
-                  showTypeBadge={true}
-                />
+                <PetitionCard key={petition.id} petition={petition} showTypeBadge={true} />
               ))}
             </div>
 

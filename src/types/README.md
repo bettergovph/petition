@@ -12,7 +12,7 @@ This directory contains TypeScript types that are safe to use on the client-side
 The database schemas and service files contain server-only code that should never be bundled with the client. By separating the types, we ensure:
 
 1. **Bundle Size**: Client doesn't download server-only code
-2. **Security**: Database implementation details stay server-side  
+2. **Security**: Database implementation details stay server-side
 3. **Performance**: Faster client-side builds
 4. **Clarity**: Clear separation between client and server concerns
 

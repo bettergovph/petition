@@ -5,6 +5,7 @@ A modern, community-driven petition platform empowering Filipino citizens to cre
 ## 🇵🇭 About
 
 **Petitions by BetterGov.ph** is a free, open-source platform that enables Filipino citizens to:
+
 - Create and share petitions for local and national issues
 - Gather support from communities across the Philippines
 - Track petition progress and engagement
@@ -32,6 +33,7 @@ This platform is part of the [BetterGov.ph](https://bettergov.ph) initiative to 
 ### Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/bettergovph/petition.git
    cd petition
@@ -39,17 +41,19 @@ This platform is part of the [BetterGov.ph](https://bettergov.ph) initiative to 
    ```
 
 2. **Set up the database**
+
    ```bash
    npm run db:setup
    ```
 
 3. **Start development server**
+
    ```bash
    npm run dev
    ```
 
 4. **Open your browser**
-   
+
    Visit `http://localhost:5173` to see the platform in action!
 
 > For detailed setup instructions and technical documentation, see [ARCHITECTURE.md](./ARCHITECTURE.md)
@@ -96,7 +100,7 @@ npm run format       # Format code with Prettier
 ## 🛠️ Tech Stack
 
 - **Frontend**: React 19, TypeScript, Tailwind CSS
-- **Backend**: Cloudflare Workers/Pages Functions  
+- **Backend**: Cloudflare Workers/Pages Functions
 - **Database**: Cloudflare D1 (SQLite)
 - **Deployment**: Cloudflare Pages
 - **Testing**: Playwright E2E tests
@@ -123,4 +127,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 **Made with ❤️ for the Philippines** 🇵🇭
 
-*Empowering citizens to create meaningful change through technology and community.*
+_Empowering citizens to create meaningful change through technology and community._

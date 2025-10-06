@@ -1,5 +1,12 @@
 import type { Env, EventContext } from '../../_shared/types'
-import { handleCORS, createErrorResponse, createSuccessResponse, createNotFoundResponse, getDbService, type AuthenticatedUser } from '../../_shared/utils'
+import {
+  handleCORS,
+  createErrorResponse,
+  createSuccessResponse,
+  createNotFoundResponse,
+  getDbService,
+  type AuthenticatedUser,
+} from '../../_shared/utils'
 
 export const onRequest = async (context: EventContext<Env>): Promise<Response> => {
   const corsResponse = handleCORS(context.request, context.env)
@@ -8,7 +15,7 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
   try {
     const db = getDbService(context)
     const userId = context.params.id
-    
+
     if (!userId) {
       return createErrorResponse('Invalid user ID', 400)
     }
@@ -19,7 +26,7 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
       if (!authenticatedUser) {
         return createErrorResponse('Authentication required', 401)
       }
-      
+
       // Users can only access their own profile or any profile if authenticated
       // Since you don't have public profiles, we'll allow authenticated users to view any profile
       const user = await db.getUserById(userId)

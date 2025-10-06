@@ -38,7 +38,7 @@ export const cacheUtils = {
 
 class ApiError extends Error {
   public status: number
-  
+
   constructor(status: number, message: string) {
     super(message)
     this.name = 'ApiError'
@@ -55,13 +55,13 @@ function getCacheKey(endpoint: string, options: RequestInit = {}): string {
 
 function isCacheValid(entry: CacheEntry): boolean {
   const now = Date.now()
-  return (now - entry.timestamp) < (entry.maxAge * 1000)
+  return now - entry.timestamp < entry.maxAge * 1000
 }
 
 async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`
   const cacheKey = getCacheKey(endpoint, options)
-  
+
   // Only use cache for GET requests
   if (!options.method || options.method === 'GET') {
     const cachedEntry = cache.get(cacheKey)
@@ -97,17 +97,17 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
   }
 
   const data = await response.json()
-  
+
   // Cache successful GET responses with ETag
   if ((!options.method || options.method === 'GET') && response.status === 200) {
     const etag = response.headers.get('ETag')
     const cacheControl = response.headers.get('Cache-Control')
-    
+
     if (etag && cacheControl) {
       // Parse max-age from Cache-Control header
       const maxAgeMatch = cacheControl.match(/max-age=(\d+)/)
       const maxAge = maxAgeMatch ? parseInt(maxAgeMatch[1]) : 300 // Default 5 minutes
-      
+
       cache.set(cacheKey, {
         data,
         etag,
@@ -134,10 +134,10 @@ export const petitionApi = {
       method: 'POST',
       body: JSON.stringify(petitionData),
     })
-    
+
     // Invalidate petition list caches after creating a new petition
     cacheUtils.invalidatePattern('GET:/api/petitions')
-    
+
     return result
   },
 
@@ -189,11 +189,11 @@ export const petitionApi = {
       method: 'PUT',
       body: JSON.stringify(petitionData),
     })
-    
+
     // Invalidate related caches after updating a petition
     cacheUtils.invalidatePattern('GET:/api/petitions')
     cacheUtils.delete(`GET:/api/petitions/${id}:`)
-    
+
     return result
   },
 
@@ -201,11 +201,11 @@ export const petitionApi = {
     const result = await apiRequest<Petition>(`/api/petition/${id}/publish`, {
       method: 'POST',
     })
-    
+
     // Invalidate related caches after publishing a petition
     cacheUtils.invalidatePattern('GET:/api/petitions')
     cacheUtils.delete(`GET:/api/petitions/${id}:`)
-    
+
     return result
   },
 
@@ -213,11 +213,11 @@ export const petitionApi = {
     const result = await apiRequest<Petition>(`/api/petition/${id}/unpublish`, {
       method: 'POST',
     })
-    
+
     // Invalidate related caches after unpublishing a petition
     cacheUtils.invalidatePattern('GET:/api/petitions')
     cacheUtils.delete(`GET:/api/petitions/${id}:`)
-    
+
     return result
   },
 
@@ -225,7 +225,7 @@ export const petitionApi = {
     await apiRequest<void>(`/api/petitions/${id}`, {
       method: 'DELETE',
     })
-    
+
     // Invalidate all petition caches after deletion
     cacheUtils.invalidatePattern('GET:/api/petitions')
     cacheUtils.delete(`GET:/api/petitions/${id}:`)
@@ -239,13 +239,13 @@ export const signatureApi = {
       method: 'POST',
       body: JSON.stringify(signatureData),
     })
-    
+
     // Invalidate petition caches since signature count changed
     cacheUtils.invalidatePattern('GET:/api/petitions')
     cacheUtils.invalidatePattern('GET:/api/petition/')
     // Invalidate user signatures cache to refresh signed petition list
     cacheUtils.invalidatePattern('GET:/api/users/.*/signatures')
-    
+
     return result
   },
 
@@ -281,7 +281,7 @@ export const reportApi = {
     reported_item_id: number
     report_reason: string
     report_description?: string
-  }): Promise<any> {
+  }): Promise<unknown> {
     return apiRequest('/api/reports', {
       method: 'POST',
       body: JSON.stringify(data),

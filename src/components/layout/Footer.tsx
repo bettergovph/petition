@@ -2,40 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 // import { useTranslation } from 'react-i18next';
 import { SiFacebook, SiInstagram, SiYoutube, SiX, SiDiscord } from '@icons-pack/react-simple-icons'
-
-export const footerNavigation = {
-  mainSections: [
-    {
-      title: 'About',
-      links: [
-        { label: 'How It Works', href: '/how-it-works' },
-        { label: 'Terms of Service', href: '/terms' },
-        { label: 'Privacy Policy', href: '/privacy' },
-      ],
-    },
-    {
-      title: 'Services',
-      links: [
-        { label: 'All Petitions', href: '/petitions' },
-        { label: 'Featured Petitions', href: '/featured' },
-        // { label: 'My Petitions', href: '/petitions/my' },
-      ],
-    },
-    {
-      title: 'Our Projects',
-      links: [
-        { label: 'BetterGov.ph', href: 'https://bettergov.ph' },
-        { label: 'SALN Tracker', href: 'https://saln.bettergov.ph' },
-      ],
-    },
-  ],
-  socialLinks: [
-    { label: 'Facebook', href: 'https://facebook.com/bettergovph' },
-    { label: 'Discord', href: 'https://discord.gg/bettergovph' },
-    // { label: 'Instagram', href: 'https://instagram.com/govph' },
-    // { label: 'YouTube', href: 'https://youtube.com/govph' },
-  ],
-}
+import { footerNavigation } from './footer-navigation'
 
 const Footer: React.FC = () => {
   // const { t } = useTranslation('common');
@@ -75,8 +42,8 @@ const Footer: React.FC = () => {
               </div>
             </div>
             <p className="text-gray-400 text-sm mb-4 max-w-md">
-              This service is provided by BetterGov.ph. A community portal providing Philippine citizens, businesses, and visitors with
-              information and services.
+              This service is provided by BetterGov.ph. A community portal providing Philippine
+              citizens, businesses, and visitors with information and services.
             </p>
             <div className="flex space-x-4">
               {footerNavigation.socialLinks.map(link => (

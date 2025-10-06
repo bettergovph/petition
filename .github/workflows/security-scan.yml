@@ -1,0 +1,55 @@
+name: Security Scan
+
+on:
+  workflow_run:
+    workflows: ['Code Quality Checks']
+    types: [completed]
+    branches: [main, develop]
+  schedule:
+    - cron: '0 2 * * 1' # Weekly on Monday at 2 AM
+
+jobs:
+  security-scan:
+    name: Security Vulnerability Scan
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'schedule' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
+
+      - name: Run audit-ci
+        run: npm run security:check
+
+      - name: Check for known security issues
+        run: |
+          echo "Checking for security vulnerabilities..."
+          npm audit --json > audit-results.json || true
+
+          # Check for high/critical vulnerabilities
+          if jq -e '.vulnerabilities | to_entries | map(select(.value.severity == "high" or .value.severity == "critical")) | length > 0' audit-results.json; then
+            echo "High or critical vulnerabilities found!"
+            jq '.vulnerabilities | to_entries | map(select(.value.severity == "high" or .value.severity == "critical")) | from_entries' audit-results.json
+            exit 1
+          else
+            echo "No high or critical vulnerabilities found"
+          fi
+
+      - name: Upload security report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-audit-report
+          path: audit-results.json
+          retention-days: 30

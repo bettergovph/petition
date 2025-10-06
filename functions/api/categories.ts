@@ -1,10 +1,10 @@
 import type { Env, EventContext } from '../_shared/types'
-import { 
-  handleCORS, 
-  createErrorResponseWithCors, 
-  createSuccessResponseWithCors, 
+import {
+  handleCORS,
+  createErrorResponseWithCors,
+  createSuccessResponseWithCors,
   createCachedResponse,
-  getDbService 
+  getDbService,
 } from '../_shared/utils'
 
 export const onRequest = async (context: EventContext<Env>): Promise<Response> => {
@@ -13,7 +13,7 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
 
   try {
     const db = getDbService(context)
-    
+
     if (context.request.method === 'GET') {
       const categories = await db.getAllCategories()
       // Cache categories for 15 minutes (they rarely change)
@@ -21,9 +21,14 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
     }
 
     if (context.request.method === 'POST') {
-      const body = await context.request.json() as { name: string; description?: string }
+      const body = (await context.request.json()) as { name: string; description?: string }
       if (!body.name) {
-        return createErrorResponseWithCors('Category name is required', context.request, context.env, 400)
+        return createErrorResponseWithCors(
+          'Category name is required',
+          context.request,
+          context.env,
+          400
+        )
       }
       const category = await db.createCategory(body.name, body.description)
       return createSuccessResponseWithCors(category, context.request, context.env)

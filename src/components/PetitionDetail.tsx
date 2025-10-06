@@ -51,27 +51,30 @@ function PetitionDetailContent() {
   const [reportingSignature, setReportingSignature] = useState<Signature | null>(null)
   const [showSignInModal, setShowSignInModal] = useState(false)
 
-  const fetchPetition = useCallback(async (skipSignatures = false) => {
-    try {
-      const data = await petitionApi.getBySlug(slug!)
-      setPetition(data)
+  const fetchPetition = useCallback(
+    async (skipSignatures = false) => {
+      try {
+        const data = await petitionApi.getBySlug(slug!)
+        setPetition(data)
 
-      // Only fetch signatures if not skipping (to avoid duplicate calls)
-      if (!skipSignatures) {
-        try {
-          const signatures = await petitionApi.getSignatures(data.id, { limit: 20 })
-          setSignatures(signatures)
-        } catch (sigErr) {
-          console.error('Failed to fetch signatures:', sigErr)
+        // Only fetch signatures if not skipping (to avoid duplicate calls)
+        if (!skipSignatures) {
+          try {
+            const signatures = await petitionApi.getSignatures(data.id, { limit: 20 })
+            setSignatures(signatures)
+          } catch (sigErr) {
+            console.error('Failed to fetch signatures:', sigErr)
+          }
         }
+      } catch (err) {
+        console.error('Failed to fetch petition:', err)
+        setError('Failed to load petition. Please try again later.')
+      } finally {
+        setLoading(false)
       }
-    } catch (err) {
-      console.error('Failed to fetch petition:', err)
-      setError('Failed to load petition. Please try again later.')
-    } finally {
-      setLoading(false)
-    }
-  }, [slug])
+    },
+    [slug]
+  )
 
   useEffect(() => {
     if (slug) {
@@ -88,16 +91,16 @@ function PetitionDetailContent() {
 
   const handleSignSuccess = async () => {
     setRefreshing(true)
-    
+
     try {
       // Optimistically update the signed petitions list immediately
       if (petition) {
         addSignedPetition(petition.id)
       }
-      
+
       // Add a small delay to ensure the server has processed the signature
       await new Promise(resolve => setTimeout(resolve, 500))
-      
+
       // Fetch both petition and signatures data in parallel with cache busting
       const timestamp = Date.now()
       const [petitionResponse, signaturesResponse] = await Promise.all([
@@ -105,34 +108,36 @@ function PetitionDetailContent() {
           headers: {
             'Content-Type': 'application/json',
             'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache'
-          }
+            Pragma: 'no-cache',
+          },
         }),
-        petition ? fetch(`/api/petitions/${petition.id}/signatures?limit=20&_t=${timestamp}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache'
-          }
-        }) : Promise.resolve(null)
+        petition
+          ? fetch(`/api/petitions/${petition.id}/signatures?limit=20&_t=${timestamp}`, {
+              headers: {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                Pragma: 'no-cache',
+              },
+            })
+          : Promise.resolve(null),
       ])
-      
+
       // Process petition data
       if (petitionResponse.ok) {
-        const data = await petitionResponse.json() as PetitionWithDetails
+        const data = (await petitionResponse.json()) as PetitionWithDetails
         setPetition(data)
         console.log('✅ Petition data refreshed after signing - new count:', data.current_count)
       }
-      
+
       // Process signatures data
       if (signaturesResponse && signaturesResponse.ok) {
-        const signatures = await signaturesResponse.json() as Signature[]
+        const signatures = (await signaturesResponse.json()) as Signature[]
         setSignatures(signatures)
       }
-      
+
       // Note: We don't call refreshSignatures() here since we already optimistically updated
       // and the user signatures will be refreshed naturally on the next component that needs them
-      
+
       // Show success indicator briefly
       setJustUpdated(true)
       setTimeout(() => setJustUpdated(false), 3000)
@@ -186,7 +191,7 @@ function PetitionDetailContent() {
         report_reason: reason,
         report_description: description,
       })
-      
+
       // Show success message (you could add a toast notification here)
       console.log('Report submitted successfully')
     } catch (error) {
@@ -205,7 +210,7 @@ function PetitionDetailContent() {
         report_reason: reason,
         report_description: description,
       })
-      
+
       // Show success message (you could add a toast notification here)
       console.log('Signature report submitted successfully')
       setReportingSignature(null)
@@ -220,7 +225,7 @@ function PetitionDetailContent() {
       setShowSignInModal(true)
       return
     }
-    
+
     setReportingSignature(signature)
     setShowReportModal(true)
   }
@@ -248,7 +253,7 @@ function PetitionDetailContent() {
 
   // Clean description for meta tags (remove markdown and limit length)
   const cleanDescription = petition.description
-    .replace(/[#*`_~\[\]()]/g, '') // Remove markdown syntax
+    .replace(/[#*`_~[\]()]/g, '') // Remove markdown syntax
     .replace(/\n/g, ' ') // Replace newlines with spaces
     .trim()
     .slice(0, 160)
@@ -279,7 +284,10 @@ function PetitionDetailContent() {
         <meta property="article:author" content={petition.creator.name || 'BetterGov.ph'} />
         <meta property="article:published_time" content={petition.created_at} />
         <meta property="article:section" content="Petitions" />
-        <meta property="article:tag" content={petition.categories.map(cat => cat.name).join(', ')} />
+        <meta
+          property="article:tag"
+          content={petition.categories.map(cat => cat.name).join(', ')}
+        />
 
         {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
@@ -297,41 +305,41 @@ function PetitionDetailContent() {
         {petition.type === 'local' && petition.location && (
           <meta name="geo.placename" content={petition.location} />
         )}
-        
+
         {/* Schema.org structured data */}
         <script type="application/ld+json">
           {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Article",
-            "headline": petition.title,
-            "description": cleanDescription,
-            "image": imageUrl,
-            "author": {
-              "@type": "Person",
-              "name": petition.creator.name || "BetterGov.ph"
+            '@context': 'https://schema.org',
+            '@type': 'Article',
+            headline: petition.title,
+            description: cleanDescription,
+            image: imageUrl,
+            author: {
+              '@type': 'Person',
+              name: petition.creator.name || 'BetterGov.ph',
             },
-            "publisher": {
-              "@type": "Organization",
-              "name": "BetterGov.ph",
-              "logo": {
-                "@type": "ImageObject",
-                "url": "https://petition.ph/bettergov-og.jpg"
-              }
+            publisher: {
+              '@type': 'Organization',
+              name: 'BetterGov.ph',
+              logo: {
+                '@type': 'ImageObject',
+                url: 'https://petition.ph/bettergov-og.jpg',
+              },
             },
-            "datePublished": petition.created_at,
-            "dateModified": petition.updated_at || petition.created_at,
-            "mainEntityOfPage": {
-              "@type": "WebPage",
-              "@id": pageUrl
+            datePublished: petition.created_at,
+            dateModified: petition.updated_at || petition.created_at,
+            mainEntityOfPage: {
+              '@type': 'WebPage',
+              '@id': pageUrl,
             },
-            "keywords": petition.categories.map(cat => cat.name).join(', '),
-            "articleSection": "Petitions",
-            "inLanguage": "en-PH",
-            "isPartOf": {
-              "@type": "WebSite",
-              "@id": "https://petition.ph",
-              "name": "BetterGov.ph"
-            }
+            keywords: petition.categories.map(cat => cat.name).join(', '),
+            articleSection: 'Petitions',
+            inLanguage: 'en-PH',
+            isPartOf: {
+              '@type': 'WebSite',
+              '@id': 'https://petition.ph',
+              name: 'BetterGov.ph',
+            },
           })}
         </script>
       </Helmet>
@@ -408,30 +416,34 @@ function PetitionDetailContent() {
                   <div className="prose prose-gray max-w-none">
                     <MDEditor.Markdown
                       source={petition.description}
-                      style={{ 
+                      style={{
                         backgroundColor: 'transparent',
-                        color: 'inherit'
+                        color: 'inherit',
                       }}
                       className="!bg-transparent"
                       rehypePlugins={[
                         [
                           // Add target="_blank" and rel="noopener noreferrer" to external links
-                          () => (tree: any) => {
-                            const visit = (node: any) => {
+                          () => (tree: unknown) => {
+                            const visit = (node: Record<string, unknown>) => {
                               if (node.type === 'element' && node.tagName === 'a') {
-                                const href = node.properties?.href
-                                if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
-                                  node.properties.target = '_blank'
-                                  node.properties.rel = 'noopener noreferrer'
+                                const properties = node.properties as Record<string, unknown>
+                                const href = properties?.href as string
+                                if (
+                                  href &&
+                                  (href.startsWith('http://') || href.startsWith('https://'))
+                                ) {
+                                  properties.target = '_blank'
+                                  properties.rel = 'noopener noreferrer'
                                 }
                               }
-                              if (node.children) {
+                              if (node.children && Array.isArray(node.children)) {
                                 node.children.forEach(visit)
                               }
                             }
-                            visit(tree)
-                          }
-                        ]
+                            visit(tree as Record<string, unknown>)
+                          },
+                        ],
                       ]}
                     />
                   </div>
@@ -475,7 +487,11 @@ function PetitionDetailContent() {
                             <button
                               onClick={() => handleReportClick(signature)}
                               className="text-gray-800 hover:text-red-500 transition-colors p-1 rounded hover:bg-red-50"
-                              title={isAuthenticated ? "Report this signature" : "Sign in to report this signature"}
+                              title={
+                                isAuthenticated
+                                  ? 'Report this signature'
+                                  : 'Sign in to report this signature'
+                              }
                             >
                               <Flag className="h-3 w-3" />
                             </button>
@@ -502,7 +518,11 @@ function PetitionDetailContent() {
                       {justUpdated && !refreshing && (
                         <div className="flex items-center gap-1 text-green-600 animate-pulse">
                           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
                           </svg>
                           <span className="text-xs">Updated!</span>
                         </div>
@@ -685,17 +705,17 @@ function PetitionDetailContent() {
               setReportingSignature(null)
             }}
             onSubmit={reportingSignature ? handleReportSignature : handleReport}
-            itemType={reportingSignature ? "signature" : "petition"}
-            itemTitle={reportingSignature ? 
-              (reportingSignature.comment ? `"${reportingSignature.comment}"` : 'Anonymous signature') : 
-              petition.title
+            itemType={reportingSignature ? 'signature' : 'petition'}
+            itemTitle={
+              reportingSignature
+                ? reportingSignature.comment
+                  ? `"${reportingSignature.comment}"`
+                  : 'Anonymous signature'
+                : petition.title
             }
           />
 
-          <SignInModal
-            isOpen={showSignInModal}
-            onClose={() => setShowSignInModal(false)}
-          />
+          <SignInModal isOpen={showSignInModal} onClose={() => setShowSignInModal(false)} />
         </div>
       </div>
     </>
