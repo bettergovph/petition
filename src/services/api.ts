@@ -154,6 +154,7 @@ export const petitionApi = {
       limit?: number
       offset?: number
       type?: 'local' | 'national'
+      categories?: string[]
     } = {}
   ): Promise<PetitionWithDetails[]> {
     const searchParams = new URLSearchParams()
@@ -161,6 +162,9 @@ export const petitionApi = {
     if (params.limit) searchParams.set('limit', params.limit.toString())
     if (params.offset) searchParams.set('offset', params.offset.toString())
     if (params.type) searchParams.set('type', params.type)
+    if (params.categories && params.categories.length > 0) {
+      searchParams.set('categories', params.categories.join(','))
+    }
 
     return apiRequest<PetitionWithDetails[]>(`/api/petitions?${searchParams}`)
   },

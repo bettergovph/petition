@@ -4,16 +4,16 @@
 /// <reference types="@cloudflare/workers-types" />
 
 import type {
-  User,
-  Petition,
-  Signature,
   Category,
   CreatePetitionInput,
   CreateSignatureInput,
-  PetitionWithDetails,
-  UserReport,
   CreateUserReportInput,
+  Petition,
+  PetitionWithDetails,
+  Signature,
   UpdateUserReportInput,
+  User,
+  UserReport,
 } from './schemas/types'
 
 export class DatabaseService {
@@ -178,23 +178,40 @@ export class DatabaseService {
   async getAllPetitions(
     limit = 50,
     offset = 0,
-    type?: 'local' | 'national'
+    type?: 'local' | 'national',
+    categoryIds?: number[]
   ): Promise<PetitionWithDetails[]> {
     // Get petitions with creator info - no expensive JOIN with signatures
     // Only return published petitions (where published_at is not NULL)
     let query = `
-      SELECT 
+      SELECT DISTINCT
         p.*,
         u.name as creator_name
       FROM petitions p
       JOIN users u ON p.created_by = u.id
-      WHERE p.published_at IS NOT NULL
     `
 
     const params: (string | number)[] = []
+
+    // Add category filter if provided
+    if (categoryIds && categoryIds.length > 0) {
+      query += `
+      JOIN petition_categories pc ON p.id = pc.petition_id
+      `
+    }
+
+    query += ' WHERE p.published_at IS NOT NULL'
+
     if (type) {
       query += ' AND p.type = ?'
       params.push(type)
+    }
+
+    // Add category filter
+    if (categoryIds && categoryIds.length > 0) {
+      const selectedCategories = categoryIds.map(() => '?').join(',')
+      query += ` AND pc.category_id IN (${selectedCategories})`
+      params.push(...categoryIds)
     }
 
     query += ' ORDER BY p.created_at DESC LIMIT ? OFFSET ?'

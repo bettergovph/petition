@@ -1,11 +1,15 @@
-import { useState, useEffect, useCallback } from 'react'
-import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import PetitionCard from './shared/PetitionCard'
-import { petitionApi } from '@/services/api'
+import { Input } from '@/components/ui/input'
+import { DEFAULT_CATEGORIES } from '@/constants/categories'
+import { categoryApi, petitionApi } from '@/services/api'
 import type { PetitionWithDetails } from '@/types/api'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import type { Category } from '../types/api'
+import FilterPopover from './shared/FilterPopover'
+import PetitionCard from './shared/PetitionCard'
+import { ButtonGroup } from './ui/button-group'
 
 export default function AllPetitions() {
   const [petitions, setPetitions] = useState<PetitionWithDetails[]>([])
@@ -15,8 +19,35 @@ export default function AllPetitions() {
   const [searchQuery, setSearchQuery] = useState('')
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
 
   const PETITIONS_PER_PAGE = 12
+
+  // Load categories on component mount
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const fetchedCategories = await categoryApi.getAll()
+        setCategories(fetchedCategories)
+      } catch (error) {
+        console.error('Failed to load categories:', error)
+        // Fallback to hardcoded categories if API fails
+        setCategories(DEFAULT_CATEGORIES)
+      }
+    }
+
+    loadCategories()
+  }, [])
+
+  const filterOptions = useMemo(
+    () =>
+      categories.map(cat => ({
+        label: cat.name,
+        value: cat.id.toString(),
+      })),
+    [categories]
+  )
 
   const fetchPetitions = useCallback(
     async (reset = false) => {
@@ -33,6 +64,7 @@ export default function AllPetitions() {
           limit: PETITIONS_PER_PAGE,
           offset,
           type: filter === 'all' ? undefined : filter,
+          categories: selectedCategories.length > 0 ? selectedCategories : undefined,
         })
 
         if (reset) {
@@ -49,16 +81,33 @@ export default function AllPetitions() {
         setLoading(false)
       }
     },
-    [filter, page]
+    [filter, page, selectedCategories]
   )
 
   useEffect(() => {
     fetchPetitions(true) // Reset when filters change
-  }, [filter, fetchPetitions])
+  }, [filter, selectedCategories, fetchPetitions])
 
   const handleLoadMore = () => {
     setPage(prev => prev + 1)
     fetchPetitions(false)
+  }
+
+  const handleCategorySelect = (value: string) => {
+    const isSelected = selectedCategories.includes(value)
+    if (isSelected) {
+      setSelectedCategories(selectedCategories.filter(cat => cat !== value))
+    } else {
+      setSelectedCategories([...selectedCategories, value])
+    }
+    // Reset pagination when categories change
+    setPage(1)
+  }
+
+  const handleCategoryClear = () => {
+    setSelectedCategories([])
+    // Reset pagination when categories change
+    setPage(1)
   }
 
   const filteredPetitions = petitions.filter(
@@ -116,7 +165,9 @@ export default function AllPetitions() {
                   onChange={e => setSearchQuery(e.target.value)}
                 />
               </div>
-              <div className="flex gap-2">
+
+              {/* Petition Type */}
+              <ButtonGroup aria-label="Petition type filter group">
                 <Button
                   variant={filter === 'all' ? 'default' : 'outline'}
                   onClick={() => setFilter('all')}
@@ -138,7 +189,16 @@ export default function AllPetitions() {
                 >
                   National
                 </Button>
-              </div>
+              </ButtonGroup>
+
+              {/* Categories */}
+              <FilterPopover
+                title="Categories"
+                options={filterOptions}
+                selectedValues={selectedCategories}
+                onSelect={handleCategorySelect}
+                onClear={handleCategoryClear}
+              />
             </div>
           </div>
 
