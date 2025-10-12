@@ -1,16 +1,17 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Card } from './ui/card'
-import { Button } from './ui/button'
-import { Input } from './ui/input'
 import { Badge } from './ui/badge'
+import { Button } from './ui/button'
+import { Card } from './ui/card'
+import { Input } from './ui/input'
 // import { ImageUpload } from './ui/ImageUpload' // Using custom implementation for server-side upload
-import { petitionApi, categoryApi, ApiError } from '../services/api'
-import type { Category, Petition } from '../types/api'
+import { DEFAULT_CATEGORIES } from '@/constants/categories'
 import MDEditor, { commands } from '@uiw/react-md-editor'
-import { useAuth } from '../hooks/useAuthHook'
-import type { Session } from '../hooks/useAuth'
 import { useTranslation } from 'react-i18next'
+import type { Session } from '../hooks/useAuth'
+import { useAuth } from '../hooks/useAuthHook'
+import { ApiError, categoryApi, petitionApi } from '../services/api'
+import type { Category, Petition } from '../types/api'
 import CreatePetitionSignIn from './auth/CreatePetitionSignIn'
 
 interface CreatePetitionFormData {
@@ -64,56 +65,7 @@ export default function CreatePetition() {
       } catch (error) {
         console.error('Failed to load categories:', error)
         // Fallback to hardcoded categories if API fails
-        setCategories([
-          {
-            id: 1,
-            name: 'Environment',
-            description: 'Environmental protection and sustainability',
-            created_at: '',
-          },
-          {
-            id: 2,
-            name: 'Education',
-            description: 'Educational policies and reforms',
-            created_at: '',
-          },
-          {
-            id: 3,
-            name: 'Healthcare',
-            description: 'Healthcare access and policies',
-            created_at: '',
-          },
-          {
-            id: 4,
-            name: 'Social Justice',
-            description: 'Social equality and justice',
-            created_at: '',
-          },
-          {
-            id: 5,
-            name: 'Transportation',
-            description: 'Public transportation and infrastructure',
-            created_at: '',
-          },
-          {
-            id: 6,
-            name: 'Local Government',
-            description: 'Local government policies',
-            created_at: '',
-          },
-          {
-            id: 7,
-            name: 'Animal Rights',
-            description: 'Animal welfare and protection',
-            created_at: '',
-          },
-          {
-            id: 8,
-            name: 'Technology',
-            description: 'Technology policies and digital rights',
-            created_at: '',
-          },
-        ])
+        setCategories(DEFAULT_CATEGORIES)
       } finally {
         setIsLoading(false)
       }
