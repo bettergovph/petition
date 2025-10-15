@@ -1,5 +1,7 @@
 /// <reference types="@cloudflare/workers-types" />
 
+import type { AuthenticatedUser } from "./utils"
+
 export interface Env {
   DB: D1Database
   CACHE: KVNamespace
@@ -22,3 +24,10 @@ export interface EventContext<E = unknown> {
   next(input?: Request | string, init?: RequestInit): Promise<Response>
   data: Record<string, unknown>
 }
+export type AuthResult = {
+    success: true
+    user: AuthenticatedUser
+  } | {
+    success: false
+    response: Response
+  }
