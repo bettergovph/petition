@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import PetitionCard from './shared/PetitionCard'
 import { petitionApi } from '@/services/api'
 import type { PetitionWithDetails } from '@/types/api'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import PetitionCard from './shared/PetitionCard'
+import RichContent from './shared/RichContent'
 
 export default function FeaturedPetitions() {
   const [petitions, setPetitions] = useState<PetitionWithDetails[]>([])
@@ -141,7 +142,10 @@ export default function FeaturedPetitions() {
                         {petitions[0].title}
                       </Link>
                     </CardTitle>
-                    <p className="text-gray-700">{petitions[0].description}</p>
+                    <RichContent
+                      content={petitions[0].description}
+                      className="text-gray-700 line-clamp-5"
+                    />
                   </CardHeader>
                   <CardContent>
                     {petitions[0].type === 'local' && petitions[0].location && (

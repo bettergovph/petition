@@ -1,8 +1,9 @@
-import { Link } from 'react-router-dom'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useUserSignatures } from '@/hooks/useUserSignatures'
 import type { PetitionWithDetails } from '@/types/api'
+import { Link } from 'react-router-dom'
+import RichContent from './RichContent'
 
 interface PetitionCardProps {
   petition: PetitionWithDetails
@@ -65,9 +66,10 @@ export default function PetitionCard({ petition, showTypeBadge = false }: Petiti
       <CardContent className="flex flex-col flex-grow px-6 pb-6">
         {/* Petition description */}
         <div className="h-20 mb-4">
-          <p className="text-base leading-relaxed text-gray-800 line-clamp-3">
-            {petition.description}
-          </p>
+          <RichContent
+            content={petition.description}
+            className="text-base leading-relaxed text-gray-800 line-clamp-3"
+          />
         </div>
 
         {/* Location info */}
