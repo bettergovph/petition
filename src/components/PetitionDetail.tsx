@@ -1,17 +1,17 @@
-import { useState, useEffect, useCallback, Suspense } from 'react'
-import { useParams, Link } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { petitionApi, reportApi } from '@/services/api'
 import { useUserSignatures } from '@/hooks/useUserSignatures'
+import { petitionApi, reportApi } from '@/services/api'
 import type { PetitionWithDetails, Signature } from '@/types/api'
-import SignPetitionModal from './SignPetitionModal'
-import ReportModal from './ReportModal'
-import SignInModal from './auth/SignInModal'
-import { Share, Copy, Check, Flag } from 'lucide-react'
-import { SiFacebook, SiX, SiWhatsapp, SiTelegram } from '@icons-pack/react-simple-icons'
-import MDEditor from '@uiw/react-md-editor'
 import { Helmet } from '@dr.pogodin/react-helmet'
+import { SiFacebook, SiTelegram, SiWhatsapp, SiX } from '@icons-pack/react-simple-icons'
+import { Check, Copy, Flag, Share } from 'lucide-react'
+import { Suspense, useCallback, useEffect, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
+import ReportModal from './ReportModal'
+import SignPetitionModal from './SignPetitionModal'
+import SignInModal from './auth/SignInModal'
+import RichContent from './shared/RichContent'
 
 // Loading fallback component for Suspense
 function PetitionDetailFallback() {
@@ -414,38 +414,7 @@ function PetitionDetailContent() {
                 <div className="mb-8">
                   <h2 className="text-xl font-semibold mb-4">Why this petition matters</h2>
                   <div className="prose prose-gray max-w-none">
-                    <MDEditor.Markdown
-                      source={petition.description}
-                      style={{
-                        backgroundColor: 'transparent',
-                        color: 'inherit',
-                      }}
-                      className="!bg-transparent"
-                      rehypePlugins={[
-                        [
-                          // Add target="_blank" and rel="noopener noreferrer" to external links
-                          () => (tree: unknown) => {
-                            const visit = (node: Record<string, unknown>) => {
-                              if (node.type === 'element' && node.tagName === 'a') {
-                                const properties = node.properties as Record<string, unknown>
-                                const href = properties?.href as string
-                                if (
-                                  href &&
-                                  (href.startsWith('http://') || href.startsWith('https://'))
-                                ) {
-                                  properties.target = '_blank'
-                                  properties.rel = 'noopener noreferrer'
-                                }
-                              }
-                              if (node.children && Array.isArray(node.children)) {
-                                node.children.forEach(visit)
-                              }
-                            }
-                            visit(tree as Record<string, unknown>)
-                          },
-                        ],
-                      ]}
-                    />
+                    <RichContent content={petition.description} />
                   </div>
                 </div>
               </div>
