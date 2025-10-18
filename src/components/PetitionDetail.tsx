@@ -530,9 +530,9 @@ function PetitionDetailContent() {
                     </span>
                     <span>{petition.target_count.toLocaleString()} goal</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
+                  <div className="w-full bg-gray-200 h-3 mb-2">
                     <div
-                      className="bg-green-600 h-3 rounded-full transition-all duration-300"
+                      className="bg-green-600 h-3 transition-all duration-300"
                       style={{ width: `${Math.min(progressPercentage, 100)}%` }}
                     />
                   </div>
