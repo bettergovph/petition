@@ -1,22 +1,55 @@
-import { useState, useEffect, useCallback } from 'react'
-import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
-import PetitionCard from './shared/PetitionCard'
-import { petitionApi } from '@/services/api'
+import { Input } from '@/components/ui/input'
+import { DEFAULT_CATEGORIES } from '@/constants/categories'
+import { categoryApi, petitionApi } from '@/services/api'
 import type { PetitionWithDetails } from '@/types/api'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
+import type { Category } from '../types/api'
+import FilterPopover from './shared/FilterPopover'
+import PetitionCard from './shared/PetitionCard'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
+
+type PetitionLocation = 'all' | 'local' | 'national'
 
 export default function AllPetitions() {
   const [petitions, setPetitions] = useState<PetitionWithDetails[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string>('')
-  const [filter, setFilter] = useState<'all' | 'local' | 'national'>('all')
+  const [filter, setFilter] = useState<PetitionLocation>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
 
   const PETITIONS_PER_PAGE = 12
+
+  // Load categories on component mount
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const fetchedCategories = await categoryApi.getAll()
+        setCategories(fetchedCategories)
+      } catch (error) {
+        console.error('Failed to load categories:', error)
+        // Fallback to hardcoded categories if API fails
+        setCategories(DEFAULT_CATEGORIES)
+      }
+    }
+
+    loadCategories()
+  }, [])
+
+  const filterOptions = useMemo(
+    () =>
+      categories.map(cat => ({
+        label: cat.name,
+        value: cat.id.toString(),
+      })),
+    [categories]
+  )
 
   const fetchPetitions = useCallback(
     async (reset = false) => {
@@ -33,6 +66,7 @@ export default function AllPetitions() {
           limit: PETITIONS_PER_PAGE,
           offset,
           type: filter === 'all' ? undefined : filter,
+          categories: selectedCategories.length > 0 ? selectedCategories : undefined,
         })
 
         if (reset) {
@@ -49,16 +83,33 @@ export default function AllPetitions() {
         setLoading(false)
       }
     },
-    [filter, page]
+    [filter, page, selectedCategories]
   )
 
   useEffect(() => {
     fetchPetitions(true) // Reset when filters change
-  }, [filter, fetchPetitions])
+  }, [filter, selectedCategories, fetchPetitions])
 
   const handleLoadMore = () => {
     setPage(prev => prev + 1)
     fetchPetitions(false)
+  }
+
+  const handleCategorySelect = (value: string) => {
+    const isSelected = selectedCategories.includes(value)
+    if (isSelected) {
+      setSelectedCategories(selectedCategories.filter(cat => cat !== value))
+    } else {
+      setSelectedCategories([...selectedCategories, value])
+    }
+    // Reset pagination when categories change
+    setPage(1)
+  }
+
+  const handleCategoryClear = () => {
+    setSelectedCategories([])
+    // Reset pagination when categories change
+    setPage(1)
   }
 
   const filteredPetitions = petitions.filter(
@@ -116,28 +167,37 @@ export default function AllPetitions() {
                   onChange={e => setSearchQuery(e.target.value)}
                 />
               </div>
+
               <div className="flex gap-2">
-                <Button
-                  variant={filter === 'all' ? 'default' : 'outline'}
-                  onClick={() => setFilter('all')}
-                  className="text-lg py-6"
+                {/* Petition Location */}
+                <Select
+                  value={filter}
+                  onValueChange={value => setFilter(value as PetitionLocation)}
                 >
-                  All
-                </Button>
-                <Button
-                  variant={filter === 'local' ? 'default' : 'outline'}
-                  onClick={() => setFilter('local')}
-                  className="text-lg py-6"
-                >
-                  Local
-                </Button>
-                <Button
-                  variant={filter === 'national' ? 'default' : 'outline'}
-                  onClick={() => setFilter('national')}
-                  className="text-lg py-6"
-                >
-                  National
-                </Button>
+                  <SelectTrigger className="w-[180px] text-lg py-6 gap-1 bg-white shadow-xs">
+                    <SelectValue placeholder="Location" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white">
+                    <SelectItem className="text-base" value="all">
+                      All
+                    </SelectItem>
+                    <SelectItem className="text-base" value="local">
+                      Local
+                    </SelectItem>
+                    <SelectItem className="text-base" value="national">
+                      National
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {/* Categories */}
+                <FilterPopover
+                  title="Categories"
+                  options={filterOptions}
+                  selectedValues={selectedCategories}
+                  onSelect={handleCategorySelect}
+                  onClear={handleCategoryClear}
+                />
               </div>
             </div>
           </div>
