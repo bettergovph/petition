@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { Check } from 'lucide-react'
+import { Check, ChevronsUpDown } from 'lucide-react'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import {
@@ -12,7 +12,6 @@ import {
   CommandSeparator,
 } from '../ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
-import { Separator } from '../ui/separator'
 
 export type FilterOption = {
   label: string
@@ -37,35 +36,14 @@ export default function FilterPopover({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="text-lg py-6">
+        <Button variant="outline" className="text-lg py-6 gap-1">
           {title}
           {selectedValues?.length > 0 && (
-            <>
-              <Separator orientation="vertical" className="mx-2 h-4" />
-              <Badge variant="secondary" className="rounded-sm px-1 font-normal lg:hidden">
-                {selectedValues.length}
-              </Badge>
-              <div className="hidden gap-1 lg:flex">
-                {selectedValues.length > 2 ? (
-                  <Badge variant="secondary" className="rounded-sm px-1 font-normal">
-                    {selectedValues.length} selected
-                  </Badge>
-                ) : (
-                  options
-                    .filter(option => selectedValues.includes(option.value))
-                    .map(option => (
-                      <Badge
-                        variant="secondary"
-                        key={option.value}
-                        className="rounded-sm px-1 font-normal"
-                      >
-                        {option.label}
-                      </Badge>
-                    ))
-                )}
-              </div>
-            </>
+            <Badge variant="secondary" className="rounded-sm px-1 font-normal">
+              {selectedValues.length}
+            </Badge>
           )}
+          <ChevronsUpDown className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[240px] p-0 bg-white" align="start">
