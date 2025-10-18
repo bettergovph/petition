@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import { Check, ChevronsUpDown } from 'lucide-react'
+import { Check, ChevronDown } from 'lucide-react'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import {
@@ -36,20 +36,25 @@ export default function FilterPopover({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="text-lg py-6 gap-1">
-          {title}
-          {selectedValues?.length > 0 && (
-            <Badge variant="secondary" className="rounded-sm px-1 font-normal">
-              {selectedValues.length}
-            </Badge>
-          )}
-          <ChevronsUpDown className="h-4 w-4" />
+        <Button
+          variant="outline"
+          className="text-lg bg-white py-6 min-w-[180px] justify-between font-normal rounded-md"
+        >
+          <div className="flex gap-1">
+            {title}
+            {selectedValues?.length > 0 && (
+              <Badge variant="secondary" className="rounded-sm px-1 font-normal">
+                {selectedValues.length}
+              </Badge>
+            )}
+          </div>
+          <ChevronDown className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[240px] p-0 bg-white" align="start">
         <Command>
           <CommandInput placeholder={title} />
-          <CommandList className="max-h-[400px]">
+          <CommandList className="max-h-[420px]">
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup className="overflow-auto h-full flex-1">
               {options.map(option => {
@@ -66,7 +71,7 @@ export default function FilterPopover({
                     >
                       <Check className="text-primary-foreground size-3.5" />
                     </div>
-                    <span>{option.label}</span>
+                    <span className="text-base">{option.label}</span>
                   </CommandItem>
                 )
               })}
@@ -75,7 +80,7 @@ export default function FilterPopover({
               <>
                 <CommandSeparator className="border-gray-200 border-b" />
                 <CommandGroup>
-                  <CommandItem onSelect={onClear} className="justify-center text-center">
+                  <CommandItem onSelect={onClear} className="justify-center text-center text-base">
                     Clear filters
                   </CommandItem>
                 </CommandGroup>
