@@ -1,13 +1,13 @@
 import type { CreatePetitionInput } from '../../src/db/schemas/types'
 import type { Env, EventContext } from '../_shared/types'
 import {
-  handleCORS,
-  createSuccessResponse,
-  createCachedResponse,
   createCachedErrorResponse,
-  getDbService,
+  createCachedResponse,
+  createSuccessResponse,
   generateCacheKey,
+  getDbService,
   getOrSetCache,
+  handleCORS,
   invalidateCachePattern,
   type AuthenticatedUser,
 } from '../_shared/utils'
@@ -124,11 +124,10 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
 
       // Parse category[] array parameters
       const categoryParams = url.searchParams.getAll('category[]')
-      const categoryIds = categoryParams.length > 0
-        ? categoryParams
-            .map(id => parseInt(id.trim()))
-            .filter(id => !isNaN(id))
-        : undefined
+      const categoryIds =
+        categoryParams.length > 0
+          ? categoryParams.map(id => parseInt(id.trim())).filter(id => !isNaN(id))
+          : undefined
 
       // Generate cache key for this request
       const cacheKey = generateCacheKey(context.request, 'petitions')
