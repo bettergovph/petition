@@ -122,11 +122,10 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
       const offset = parseInt(url.searchParams.get('offset') || '0')
       const userId = url.searchParams.get('userId')
 
-      // Parse categories parameter (comma-separated category IDs)
-      const categoriesParam = url.searchParams.get('categories')
-      const categoryIds = categoriesParam
-        ? categoriesParam
-            .split(',')
+      // Parse category[] array parameters
+      const categoryParams = url.searchParams.getAll('category[]')
+      const categoryIds = categoryParams.length > 0
+        ? categoryParams
             .map(id => parseInt(id.trim()))
             .filter(id => !isNaN(id))
         : undefined

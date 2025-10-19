@@ -163,7 +163,9 @@ export const petitionApi = {
     if (params.offset) searchParams.set('offset', params.offset.toString())
     if (params.type) searchParams.set('type', params.type)
     if (params.categories && params.categories.length > 0) {
-      searchParams.set('categories', params.categories.join(','))
+      params.categories.forEach(category => {
+        searchParams.append('category[]', category)
+      })
     }
 
     return apiRequest<PetitionWithDetails[]>(`/api/petitions?${searchParams}`)
