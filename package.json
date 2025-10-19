@@ -22,7 +22,8 @@
     "db:reset": "wrangler d1 execute petition-db --command='DROP TABLE IF EXISTS petition_categories; DROP TABLE IF EXISTS signatures; DROP TABLE IF EXISTS petitions; DROP TABLE IF EXISTS categories; DROP TABLE IF EXISTS users; DROP TABLE IF EXISTS accounts; DROP TABLE IF EXISTS sessions; DROP TABLE IF EXISTS verification_tokens;' && npm run db:setup",
     "db:reset:remote": "wrangler d1 execute petition-db --remote --command='DROP TABLE IF EXISTS petition_categories; DROP TABLE IF EXISTS signatures; DROP TABLE IF EXISTS petitions; DROP TABLE IF EXISTS categories; DROP TABLE IF EXISTS users; DROP TABLE IF EXISTS accounts; DROP TABLE IF EXISTS sessions; DROP TABLE IF EXISTS verification_tokens;' && npm run db:setup",
     "db:create": "wrangler d1 create petition-db --location apac",
-    "deploy": "npm run build && wrangler pages deploy dist"
+    "deploy": "npm run build && wrangler pages deploy dist",
+    "prepare": "husky"
   },
   "dependencies": {
     "@auth/core": "^0.34.2",
@@ -69,6 +70,8 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.21",
     "globals": "^16.4.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.4",
     "prettier": "^3.6.2",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.44.0",
