@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 test.describe('Petition Browsing', () => {
   test('should display petition list on homepage', async ({ page }) => {
@@ -78,5 +78,32 @@ test.describe('Petition Browsing', () => {
       // At minimum, the page shouldn't crash
       await expect(page).not.toHaveURL(/error/)
     }
+  })
+
+  test('should filter petitions by category', async ({ page }) => {
+    await page.goto('/petitions')
+
+    const economyPetition = page.getByRole('heading', { name: 'Modernize Philippine Agriculture' })
+    const educationPetition = page.getByRole('heading', {
+      name: 'Free Wi-Fi in All Public Schools Nationwide',
+    })
+    const categorySuggestions = page.getByRole('listbox', { name: 'Suggestions' })
+
+    // Ensure the economy petition is initially visible
+    await expect(economyPetition).toBeVisible()
+
+    await page.getByRole('button', { name: 'Categories' }).click()
+    await expect(categorySuggestions).toBeVisible()
+
+    // After selecting Education category, economy petition should be hidden
+    await categorySuggestions.getByRole('option', { name: 'Education' }).click()
+    await expect(economyPetition).not.toBeVisible()
+    await expect(educationPetition).toBeVisible()
+
+    // Check for multiple category selection
+    // After selecting Economy category, both petitions should be visible
+    await categorySuggestions.getByRole('option', { name: 'Economy' }).click()
+    await expect(economyPetition).toBeVisible()
+    await expect(educationPetition).toBeVisible()
   })
 })
