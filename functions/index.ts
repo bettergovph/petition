@@ -176,6 +176,20 @@ export default {
 
       if (path.match(/^\/api\/petitions\/\d+$/)) {
         const params = parsePathParams(path, '/api/petitions/[id]')
+        
+        // Require petition ownership for PUT (update) and DELETE operations
+        if (request.method === 'PUT' || request.method === 'DELETE') {
+          const petitionId = parseInt(params.id)
+          const authResult = await requirePetitionOwnership(request, env, petitionId)
+          if (authResult instanceof Response) {
+            return authResult
+          }
+          const context = createContext(request, env, params)
+          context.data.user = authResult.user
+          return await petitionByIdHandler(context)
+        }
+        
+        // GET requests don't require authentication (public access)
         return await petitionByIdHandler(createContext(request, env, params))
       }
 
