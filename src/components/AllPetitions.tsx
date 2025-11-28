@@ -88,11 +88,16 @@ export default function AllPetitions() {
 
   useEffect(() => {
     fetchPetitions(true) // Reset when filters change
-  }, [filter, selectedCategories, fetchPetitions])
+  }, [filter, selectedCategories])
+
+  useEffect(() => {
+    if (page !== 1) {
+      fetchPetitions(false)
+    }
+  }, [page])
 
   const handleLoadMore = () => {
     setPage(prev => prev + 1)
-    fetchPetitions(false)
   }
 
   const handleCategorySelect = (value: string) => {
