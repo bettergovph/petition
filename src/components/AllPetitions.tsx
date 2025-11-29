@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input'
 import { DEFAULT_CATEGORIES } from '@/constants/categories'
 import { categoryApi, petitionApi } from '@/services/api'
 import type { PetitionWithDetails } from '@/types/api'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import type { Category } from '../types/api'
 import FilterPopover from './shared/FilterPopover'
@@ -51,16 +51,12 @@ export default function AllPetitions() {
     [categories]
   )
 
-  const fetchPetitions = useCallback(
-    async (reset = false) => {
+  useEffect(() => {
+    const load = async () => {
       try {
-        if (reset) {
-          setLoading(true)
-          setPage(1)
-        }
+        setLoading(true)
 
-        const currentPage = reset ? 1 : page
-        const offset = (currentPage - 1) * PETITIONS_PER_PAGE
+        const offset = (page - 1) * PETITIONS_PER_PAGE
 
         const data = await petitionApi.getAll({
           limit: PETITIONS_PER_PAGE,
@@ -69,35 +65,26 @@ export default function AllPetitions() {
           categories: selectedCategories.length > 0 ? selectedCategories : undefined,
         })
 
-        if (reset) {
-          setPetitions(data)
-        } else {
-          setPetitions(prev => [...prev, ...data])
-        }
-
+        // reset if page === 1
+        setPetitions(prev => (page === 1 ? data : [...prev, ...data]))
         setHasMore(data.length === PETITIONS_PER_PAGE)
-      } catch (err) {
-        console.error('Failed to fetch petitions:', err)
+      } catch (error) {
+        console.error('Failed to load petitions:', error)
         setError('Failed to load petitions. Please try again later.')
       } finally {
         setLoading(false)
       }
-    },
-    [filter, page, selectedCategories]
-  )
-
-  useEffect(() => {
-    fetchPetitions(true) // Reset when filters change
-  }, [filter, selectedCategories])
-
-  useEffect(() => {
-    if (page !== 1) {
-      fetchPetitions(false)
     }
-  }, [page])
+
+    load()
+  }, [page, filter, selectedCategories])
 
   const handleLoadMore = () => {
     setPage(prev => prev + 1)
+  }
+
+  const handleTryAgain = () => {
+    setPage(1)
   }
 
   const handleCategorySelect = (value: string) => {
@@ -227,7 +214,7 @@ export default function AllPetitions() {
           ) : error ? (
             <div className="text-center py-12">
               <p className="text-lg text-red-600">{error}</p>
-              <Button onClick={() => fetchPetitions(true)} className="mt-4">
+              <Button onClick={handleTryAgain} className="mt-4">
                 Try Again
               </Button>
             </div>
