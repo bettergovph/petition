@@ -1,8 +1,73 @@
-# E2E Tests for Petition Application
+# Tests for Petition Application
 
-This directory contains end-to-end tests using Playwright for the petition application.
+This directory contains all tests for the petition application.
 
 ## Test Structure
+
+```
+tests/
+├── unit/        ← Unit tests (fast, isolated)
+├── e2e/         ← E2E tests (full workflows)
+└── README.md    ← This file
+```
+
+## Unit Tests (Vitest)
+
+**Location:** `tests/unit/` \
+**Framework:** Vitest with @cloudflare/vitest-pool-workers \
+**Purpose:** Test validation schemas, utilities, and business logic in isolation
+
+### Test Files
+
+- **`create-petition.test.ts`** - Tests for createPetitionSchema validation
+- **`update-petition.test.ts`** - Tests for updatePetitionSchema validation
+- **`setup.test.ts`** - Vitest setup verification
+
+### Running Unit Tests
+
+```bash
+# Run all unit tests
+pnpm test:unit
+
+# Run in watch mode
+pnpm test:watch
+
+# Run with UI
+pnpm test:ui
+```
+
+### Unit Test Coverage
+
+**Create Petition Validation (27 tests):**
+
+- ✅ Valid national petitions with all fields
+- ✅ Valid local petitions with location
+- ✅ Default values (target_count = 1000)
+- ✅ Category IDs validation
+- ✅ Title validation (min/max length, required, type)
+- ✅ Description validation (min length, required)
+- ✅ Type validation (enum: local/national)
+- ✅ Location validation (required for local petitions)
+- ✅ Target count validation (min/max, integer, NaN)
+- ✅ Whitespace trimming
+- ✅ Error message formatting
+
+**Update Petition Validation (13 tests):**
+
+- ✅ Partial updates (single field, multiple fields, empty object)
+- ✅ Status validation (active, completed, closed)
+- ✅ Location validation when updating to local type
+- ✅ Same validation rules as create (reused validators)
+
+**Total:** 42 unit tests, all passing
+
+## E2E Tests (Playwright)
+
+**Location:** `tests/e2e/`
+**Framework:** Playwright
+**Purpose:** Test complete user workflows with real browser interactions
+
+### Test Files
 
 - **`example.spec.ts`** - Simple example tests to verify basic functionality
 - **`petitions.spec.ts`** - Tests for browsing and listing petitions

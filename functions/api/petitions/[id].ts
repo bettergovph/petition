@@ -1,15 +1,27 @@
-import type { CreatePetitionInput } from '../../../src/db/schemas/types'
 import type { Env, EventContext } from '../../_shared/types'
 import {
   handleCORS,
   createSuccessResponse,
   createCachedResponse,
   createCachedErrorResponse,
+  createValidationErrorResponse,
   getDbService,
   invalidateCachePattern,
   generateCacheKey,
   getOrSetCache,
 } from '../../_shared/utils'
+import {
+  getStringField,
+  getIntegerField,
+  getJsonArrayField,
+  getFileField,
+} from '../../_shared/form-data-parser'
+import {
+  updatePetitionSchema,
+  formatZodError,
+  type UpdatePetitionRequest,
+  type ValidatedUpdateData,
+} from '../../_shared/schemas'
 
 export const onRequest = async (context: EventContext<Env>): Promise<Response> => {
   const corsResponse = handleCORS(context.request, context.env)
@@ -47,36 +59,50 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
       // Check if this is a multipart form (with image) or JSON
       const contentType = context.request.headers.get('content-type') || ''
 
-      let petitionData: Partial<CreatePetitionInput>
-      let imageFile: File | null = null
+      let petitionData: UpdatePetitionRequest
+      let imageFile: File | undefined = undefined
 
       if (contentType.includes('multipart/form-data')) {
         // Handle form data with potential image
         const formData = await context.request.formData()
 
-        // Extract petition data from form
-        petitionData = {}
-        if (formData.get('title')) petitionData.title = formData.get('title') as string
-        if (formData.get('description'))
-          petitionData.description = formData.get('description') as string
-        if (formData.get('type')) petitionData.type = formData.get('type') as 'local' | 'national'
-        if (formData.get('location')) petitionData.location = formData.get('location') as string
-        if (formData.get('target_count'))
-          petitionData.target_count = parseInt(formData.get('target_count') as string)
-        if (formData.get('category_ids'))
-          petitionData.category_ids = JSON.parse((formData.get('category_ids') as string) || '[]')
-        if (formData.get('status'))
-          petitionData.status = formData.get('status') as 'active' | 'completed' | 'closed'
+        const title = getStringField(formData, 'title')
+        const description = getStringField(formData, 'description')
+        const type = getStringField(formData, 'type')
+        const location = getStringField(formData, 'location')
+        const targetCount = getIntegerField(formData, 'target_count')
+        const categoryIds = getJsonArrayField<number>(formData, 'category_ids')
+        const status = getStringField(formData, 'status')
+
+        // Construct and only include fields that were provided
+        petitionData = {
+          ...(title !== undefined && { title }),
+          ...(description !== undefined && { description }),
+          ...(type !== undefined && { type: type as 'local' | 'national' }),
+          ...(location !== undefined && { location }),
+          ...(targetCount !== undefined && { target_count: targetCount }),
+          ...(categoryIds !== undefined && { category_ids: categoryIds }),
+          ...(status !== undefined && { status: status as 'active' | 'completed' | 'closed' }),
+        }
 
         // Get image file if provided
-        imageFile = formData.get('image') as File | null
+        imageFile = getFileField(formData, 'image')
       } else {
         // Handle JSON data (no image)
         petitionData = await context.request.json()
       }
 
+      const validationResult = updatePetitionSchema.safeParse(petitionData)
+      if (!validationResult.success) {
+        const formattedErrors = formatZodError(validationResult.error)
+        return createValidationErrorResponse(formattedErrors, context.request, context.env)
+      }
+
+      // Use validated data
+      const validatedData: ValidatedUpdateData = validationResult.data
+
       // Step 1: Update petition record first
-      const updatedPetition = await db.updatePetition(petitionId, petitionData)
+      const updatedPetition = await db.updatePetition(petitionId, validatedData)
 
       // Step 2: If image provided, upload to R2 and update petition
       if (imageFile && imageFile.size > 0) {

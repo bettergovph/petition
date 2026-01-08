@@ -1,9 +1,9 @@
-import type { CreatePetitionInput } from '../../src/db/schemas/types'
 import type { Env, EventContext } from '../_shared/types'
 import {
   createCachedErrorResponse,
   createCachedResponse,
   createSuccessResponse,
+  createValidationErrorResponse,
   generateCacheKey,
   getDbService,
   getOrSetCache,
@@ -11,6 +11,18 @@ import {
   invalidateCachePattern,
   type AuthenticatedUser,
 } from '../_shared/utils'
+import {
+  getStringField,
+  getIntegerField,
+  getJsonArrayField,
+  getFileField,
+} from '../_shared/form-data-parser'
+import {
+  createPetitionSchema,
+  formatZodError,
+  type CreatePetitionRequest,
+  type ValidatedPetitionData,
+} from '../_shared/schemas'
 
 export const onRequest = async (context: EventContext<Env>): Promise<Response> => {
   const corsResponse = handleCORS(context.request, context.env)
@@ -35,27 +47,34 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
       // Check if this is a multipart form (with image) or JSON
       const contentType = context.request.headers.get('content-type') || ''
 
-      let petitionData: CreatePetitionInput
-      let imageFile: File | null = null
+      let petitionData: CreatePetitionRequest
+      let imageFile: File | undefined = undefined
 
       if (contentType.includes('multipart/form-data')) {
         // Handle form data with potential image
         const formData = await context.request.formData()
 
         // Extract petition data from form
+        const title = getStringField(formData, 'title')
+        const description = getStringField(formData, 'description')
+        const type = getStringField(formData, 'type')
+        const location = getStringField(formData, 'location')
+        const targetCount = getIntegerField(formData, 'target_count')
+        const categoryIds = getJsonArrayField<number>(formData, 'category_ids')
+
         petitionData = {
-          title: formData.get('title') as string,
-          description: formData.get('description') as string,
-          type: formData.get('type') as 'local' | 'national',
-          location: (formData.get('location') as string) || undefined,
-          target_count: parseInt(formData.get('target_count') as string),
-          created_by: user.id, // Use authenticated user's ID
-          category_ids: JSON.parse((formData.get('category_ids') as string) || '[]'),
-          image_url: '', // Will be set after upload
+          title: title ?? '',
+          description: description ?? '',
+          type: (type as 'local' | 'national') ?? 'national',
+          location: location,
+          target_count: targetCount,
+          created_by: user.id,
+          category_ids: categoryIds,
+          image_url: '',
         }
 
         // Get image file if provided
-        imageFile = formData.get('image') as File | null
+        imageFile = getFileField(formData, 'image')
       } else {
         // Handle JSON data (no image)
         petitionData = await context.request.json()
@@ -63,9 +82,17 @@ export const onRequest = async (context: EventContext<Env>): Promise<Response> =
         petitionData.created_by = user.id
       }
 
+      const validationResult = createPetitionSchema.safeParse(petitionData)
+      if (!validationResult.success) {
+        const formattedErrors = formatZodError(validationResult.error)
+        return createValidationErrorResponse(formattedErrors, context.request, context.env)
+      }
+
+      const validatedData: ValidatedPetitionData = validationResult.data
+
       // Step 1: Create petition record first (without image_url)
       const petition = await db.createPetition({
-        ...petitionData,
+        ...validatedData,
         image_url: '', // Start with empty image_url
       })
 

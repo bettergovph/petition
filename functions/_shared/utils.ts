@@ -186,6 +186,29 @@ export function createCachedErrorResponse(
   })
 }
 
+export function createValidationErrorResponse(
+  errors: Array<{ field: string; message: string }>,
+  request: Request,
+  env: Env
+): Response {
+  const corsHeaders = getCorsHeaders(request, env)
+
+  return new Response(
+    JSON.stringify({
+      message: 'Validation failed',
+      errors,
+    }),
+    {
+      status: 422,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      },
+    }
+  )
+}
+
 // KV Cache utilities
 export function generateCacheKey(request: Request, prefix: string = 'api'): string {
   const url = new URL(request.url)
